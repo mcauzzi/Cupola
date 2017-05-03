@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-class Command
+public class Command
 {
     public enum cmdtype
     {
@@ -22,7 +22,7 @@ class Command
     public Command(cmdtype type)
     {
         if (type != cmdtype.PHOTO)
-            throw new ArgumentException("You can only instance PHOTO without paramaters", "type");
+            throw new ArgumentException("You can only instance PHOTO without parameters", "type");
 
         this.type = type;
     }

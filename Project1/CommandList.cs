@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-class CommandList
+public class CommandList
 {
     private List<Command> list;
 
