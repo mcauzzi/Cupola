@@ -21,8 +21,8 @@ class Command
 
     public Command(cmdtype type)
     {
-        if(type != cmdtype.PHOTO)
-            throw new System.ArgumentException("You must instance PHOTO without parameters","type");
+        if (type != cmdtype.PHOTO)
+            throw new ArgumentException("You can only instance PHOTO without paramaters", "type");
 
         this.type = type;
     }
@@ -30,11 +30,11 @@ class Command
     public Command(cmdtype type, int value)
     {
         if (type == cmdtype.PHOTO)
-            throw new System.ArgumentException("You can't instance a PHOTO with parameters", "type");
+            throw new ArgumentException("You can't instance a PHOTO with parameters", "type");
         if (type == cmdtype.TIME && (value<0 || value>999))
-            throw new System.ArgumentException("Wrong value of TIME", "value");
+            throw new ArgumentException("Wrong value of TIME", "value");
         if ((type == cmdtype.VISIBLE || type == cmdtype.INFRARED || type == cmdtype.ULTRAVIOLET) && (value < 1 || value>50))
-            throw new System.ArgumentException("Wrong number of led", "value");
+            throw new ArgumentException("Wrong number of led", "value");
 
         this.type = type;
         this.value = value;

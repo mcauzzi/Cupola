@@ -28,7 +28,7 @@ public class Cupola{
         cl.add(new Command(Command.cmdtype.ULTRAVIOLET, 24));
         cl.add(new Command(Command.cmdtype.ULTRAVIOLET, 25));
         cl.add(new Command(Command.cmdtype.ULTRAVIOLET, 26));
-        cl.sendwait();
+        cl.send();
         USBConnection.close();
         System.Console.ReadLine();
     }

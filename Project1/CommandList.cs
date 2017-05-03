@@ -25,16 +25,6 @@ class CommandList
 
     public void send()
     {
-        string str = null;
-        foreach (Command c in list)
-        {
-            str += c.toString();
-        }
-        USBConnection.send(str);
-    }
-
-    public void sendwait()
-    {
         foreach (Command c in list)
         {
             USBConnection.send(c.toString());
