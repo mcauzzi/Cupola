@@ -12,20 +12,16 @@
         <RadioButton x:Name="VISButton" Content="Vis" HorizontalAlignment="Center" Margin="240,38,243,0" VerticalAlignment="Top" RenderTransformOrigin="0.54,-2.382" Checked="VISButton_Checked" Unchecked="VISButton_Unchecked"/>
         <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="Tipo di luce" VerticalAlignment="Top" RenderTransformOrigin="-0.551,-1.076"/>
         <TextBlock x:Name="textBlock1" HorizontalAlignment="Left" Margin="10,53,0,0" TextWrapping="Wrap" Text="Durata accensione" VerticalAlignment="Top"/>
-        <Slider x:Name="slider" HorizontalAlignment="Left" VerticalAlignment="Top" Height="29" Width="255" RenderTransformOrigin="1.404,1.258" Margin="19,74,0,0" SelectionEnd="999" SmallChange="0" ValueChanged="slider_ValueChanged"/>
+        <Slider x:Name="slider" HorizontalAlignment="Left" VerticalAlignment="Top" Height="29" Width="255" RenderTransformOrigin="1.404,1.258" Margin="19,74,0,0" SelectionEnd="999" SmallChange="0" ValueChanged="slider_ValueChanged" Maximum="999"/>
         <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="23" Margin="279,74,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Initialized="textBox_Initialized"/>
         <TextBlock x:Name="textBlock2" HorizontalAlignment="Left" Margin="10,103,0,0" TextWrapping="Wrap" Text="Numero LED" VerticalAlignment="Top"/>
         <ComboBox x:Name="comboBox" HorizontalAlignment="Left" Margin="10,124,0,0" VerticalAlignment="Top" Width="120" Initialized="comboBox_Initialized"/>
         <Button x:Name="addButton" Content="Add to Command List" HorizontalAlignment="Left" Margin="10,181,0,0" VerticalAlignment="Top" Click="addButton_Click"/>
         <Button x:Name="resetButton" Content="Reset command list" HorizontalAlignment="Center" Margin="0,181,0,0" VerticalAlignment="Top" Click="resetButton_Click"/>
         <Button x:Name="sendButton" Content="Send command list" HorizontalAlignment="Right" Margin="0,181,12,0" VerticalAlignment="Top" RenderTransformOrigin="-0.593,-0.664" Width="108" Click="sendButton_Click"/>
-        <ListView x:Name="cmdView" HorizontalAlignment="Left" Height="100" Margin="10,209,0,0" VerticalAlignment="Top" Width="495" Initialized="cmdView_Initialized">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn/>
-                </GridView>
-            </ListView.View>
-        </ListView>
+        <Button x:Name="button" Content="Take Photo" HorizontalAlignment="Left" Margin="10,151,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="-0.74,-0.58" Click="button_Click"/>
+        <ComboBox x:Name="cmdBox" HorizontalAlignment="Left" Margin="10,234,0,0" VerticalAlignment="Top" Width="107" Height="25" Initialized="cmdBox_Initialized" SelectedIndex="1"/>
+        <TextBox x:Name="textBox1" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="Lista Commandi" VerticalAlignment="Top" Width="120" Margin="10,206,0,0"/>
 
     </Grid>
 </Window>
