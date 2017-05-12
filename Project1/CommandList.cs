@@ -50,7 +50,7 @@ public class CommandList
 
     public void Send()
     {
-        USBConnection.open();
+        USBConnection.Open();
         camCon.WaitForConnection();
         Console.WriteLine("Inizio a mandare!");
 
@@ -58,19 +58,19 @@ public class CommandList
         foreach (Command c in list)
         {
             camCon.WaitForSave();
-            if (c.type == Command.Cmdtype.PHOTO)
+            if (c.Type == Command.Cmdtype.PHOTO)
                 camCon.Capture();
             else
-                USBConnection.send(c.ToString());
+                USBConnection.Send(c.ToString());
             
             Console.WriteLine(c.ToString());
 
-            if (c.type == Command.Cmdtype.TIME)
+            if (c.Type == Command.Cmdtype.TIME)
                 time = c.Value*10;
 
-            if ((c.type == Command.Cmdtype.VISIBLE) || (c.type == Command.Cmdtype.INFRARED) || (c.type == Command.Cmdtype.ULTRAVIOLET) || (c.type == Command.Cmdtype.PHOTO))
+            if ((c.Type == Command.Cmdtype.VISIBLE) || (c.Type == Command.Cmdtype.INFRARED) || (c.Type == Command.Cmdtype.ULTRAVIOLET) || (c.Type == Command.Cmdtype.PHOTO))
             {
-                if (i < list.Count-1 && list.ElementAt(i+1).type != Command.Cmdtype.PHOTO)
+                if (i < list.Count-1 && list.ElementAt(i+1).Type != Command.Cmdtype.PHOTO)
                 {
                     System.Threading.Thread.Sleep(time);
                 }
@@ -82,10 +82,10 @@ public class CommandList
         }
         camCon.WaitForSave();
         Console.WriteLine("Finito!");
-        USBConnection.close();
+        USBConnection.Close();
     }
 
-    public List<String> ToString()
+    public List<String> ToStringList()
     {
         List<String> str = new List<String>();
         foreach(Command c in list)

@@ -28,8 +28,8 @@ namespace WpfApp1
         {
             InitializeComponent();
             cl = new CommandList();
-            USBConnection.init();
-            USBConnection.open();
+            USBConnection.Init();
+            USBConnection.Open();
             slider.Value = CommandList.DEFAULT_TIME;
         }
 
@@ -69,14 +69,14 @@ namespace WpfApp1
             if (UVButton.IsChecked == true)
                 cl.Add(new Command(Command.Cmdtype.ULTRAVIOLET, (int)comboBox.SelectedItem+1));
 
-            cmdBox.ItemsSource = cl.ToString();
+            cmdBox.ItemsSource = cl.ToStringList();
             cmdBox.Items.Refresh();
         }
 
         private void resetButton_Click(object sender, RoutedEventArgs e)
         {
             cl = new CommandList();
-            cmdBox.ItemsSource = cl.ToString();
+            cmdBox.ItemsSource = cl.ToStringList();
             cmdBox.Items.Refresh();
         }
 
@@ -122,13 +122,13 @@ namespace WpfApp1
         {
             Command cmd = new Command(Command.Cmdtype.PHOTO);
             cl.Add(cmd);
-            cmdBox.ItemsSource = cl.ToString();
+            cmdBox.ItemsSource = cl.ToStringList();
             cmdBox.Items.Refresh();
         }
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            USBConnection.close();
+            USBConnection.Close();
         }
 
         private void textBox_LostFocus(object sender, RoutedEventArgs e)

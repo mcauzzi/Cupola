@@ -54,7 +54,7 @@ public class NikonController
         isSaved = true;
     }
 
-    public void getCapabilities(){
+    public void GetCapabilities(){
         if (isConnected)
         {
             NkMAIDCapInfo[] caps = dev.GetCapabilityInfo();

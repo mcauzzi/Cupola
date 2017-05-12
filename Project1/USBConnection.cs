@@ -7,31 +7,33 @@ using System.Threading.Tasks;
 
 public static class USBConnection
 {
-    private static SerialPort _serialPort;
+    private static SerialPort serialPort;
 
-    public static void init()
+    public static void Init()
     {
-        _serialPort = new SerialPort();
-        _serialPort.PortName = "COM3";
-        _serialPort.BaudRate = 9600;
-        _serialPort.DataBits = 8;
-        _serialPort.Parity = Parity.None;
-        _serialPort.StopBits = StopBits.One;
-        _serialPort.Handshake = Handshake.RequestToSend;
+        serialPort = new SerialPort()
+        {
+            PortName = "COM3",
+            BaudRate = 9600,
+            DataBits = 8,
+            Parity = Parity.None,
+            StopBits = StopBits.One,
+            Handshake = Handshake.RequestToSend
+        };
     }
 
-    public static void open()
+    public static void Open()
     {
-        _serialPort.Open();
+        serialPort.Open();
     }
 
-    public static void close()
+    public static void Close()
     {
-        _serialPort.Close();
+        serialPort.Close();
     }
 
-    public static void send(String str)
+    public static void Send(String str)
     {
-        _serialPort.Write(str);
+        serialPort.Write(str);
     }
 }

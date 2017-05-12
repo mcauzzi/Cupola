@@ -16,7 +16,7 @@ public class Command
         PHOTO
     }
 
-    public Cmdtype type {  get; private set; }
+    public Cmdtype Type {  get; private set; }
     public int Value {  get; private set; }
 
     //constructor for a PHOTO
@@ -25,7 +25,7 @@ public class Command
         if (type != Cmdtype.PHOTO)
             throw new ArgumentException("You can only instance PHOTO without parameters", "type");
 
-        this.type = type;
+        this.Type = type;
     }
 
     //constructor for a led
@@ -38,32 +38,32 @@ public class Command
         if ((type == Cmdtype.VISIBLE || type == Cmdtype.INFRARED || type == Cmdtype.ULTRAVIOLET) && (value < 1 || value>50))
             throw new ArgumentException("Wrong number of led", "value");
 
-        this.type = type;
+        this.Type = type;
         this.Value = value;
     }
 
     //constructor for a string, es. <t>, <v30>
     public Command(string str)
     {
-        Cmdtype type = getType(str);
+        Cmdtype type = GetType(str);
 
         if (type == Cmdtype.PHOTO)
         {
-            this.type = type;
+            this.Type = type;
         } else {
-            int value = getValue(str) + 1;
+            int value = GetValue(str) + 1;
             if (type == Cmdtype.TIME && (value < 0 || value > 999))
                 throw new ArgumentException("Wrong value of TIME", "value");
             if ((type == Cmdtype.VISIBLE || type == Cmdtype.INFRARED || type == Cmdtype.ULTRAVIOLET) && (value < 1 || value > 50))
                 throw new ArgumentException("Wrong number of led", "value");
 
-            this.type = type;
+            this.Type = type;
             Value = value;
         }
     }
 
     //returns the type of the string in input
-    private Cmdtype getType(string str)
+    private Cmdtype GetType(string str)
     {
         switch (str[1])
         {
@@ -77,19 +77,19 @@ public class Command
     }
 
     //returns the value of the string in input
-    private int getValue(string str)
+    private int GetValue(string str)
     {
         return int.Parse(str.Substring(2, str.IndexOf('>')-2));
     }
 
     public void Send()
     {
-        USBConnection.send(ToString());
+        USBConnection.Send(ToString());
     }
 
-    public string ToString()
+    public override string ToString()
     {
-        switch (type) {
+        switch (Type) {
             case Cmdtype.TIME: 
                 return "<t" + Value + ">";
             case Cmdtype.VISIBLE:

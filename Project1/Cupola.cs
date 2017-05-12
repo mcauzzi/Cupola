@@ -3,7 +3,7 @@
 
 public class Cupola{
     public static void Main() {
-        USBConnection.init();
+        USBConnection.Init();
         NikonController camCon = new NikonController();
         CommandList cl = new CommandList(camCon);
 
