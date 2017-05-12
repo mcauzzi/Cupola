@@ -1,35 +1,24 @@
-﻿using System.IO.Ports;
+﻿using System;
+//Led 21, 35, 42 IR non funzionano
 
 public class Cupola{
     public static void Main() {
-        /*
-        SerialPort _serialPort = new SerialPort();
-        _serialPort.PortName = "COM3";
-        _serialPort.BaudRate = 9600;
-        _serialPort.DataBits = 8;
-        _serialPort.Parity = Parity.None;
-        _serialPort.StopBits = StopBits.One;
-        _serialPort.Handshake = Handshake.None;
-
-        _serialPort.Open();
-        _serialPort.Write("<f><v23>");
-        //_serialPort.Write("<t100>");
-        _serialPort.Write("<v23>");
-
-        _serialPort.Close();
-
-        System.Console.ReadLine();
-        */
-
         USBConnection.init();
-        USBConnection.open();
-        CommandList cl = new CommandList();
-        cl.add(new Command(Command.cmdtype.TIME, 100));
-        cl.add(new Command(Command.cmdtype.ULTRAVIOLET, 24));
-        cl.add(new Command(Command.cmdtype.ULTRAVIOLET, 25));
-        cl.add(new Command(Command.cmdtype.ULTRAVIOLET, 26));
-        cl.send();
-        USBConnection.close();
-        System.Console.ReadLine();
+        NikonController camCon = new NikonController();
+        CommandList cl = new CommandList(camCon);
+
+        cl.Add(new Command(Command.Cmdtype.TIME, 50));
+
+        for (int i = 0; i < 5; i++)
+        {
+            cl.Add(new Command(Command.Cmdtype.VISIBLE, i + 1));
+            cl.Add(new Command(Command.Cmdtype.PHOTO));
+        }
+
+        cl.Send();
+        //camCon.WaitForConnection();
+        //camCon.getCapabilities();
+        Console.ReadLine();
+        Environment.Exit(0);
     }
 }

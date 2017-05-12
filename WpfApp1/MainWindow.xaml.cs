@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Nikon;
 
 namespace WpfApp1
 {
@@ -20,82 +21,68 @@ namespace WpfApp1
     /// </summary>
     public partial class MainWindow : Window
     {
-        List<Command> cl;
-        List<string> cls=new List<string>();
-        List<int> comboList = new List<int>();
+        private CommandList cl;
+        private int time=-1;
+
         public MainWindow()
         {
             InitializeComponent();
-            cl = new List<Command>();
-            cls = new List<string>();
+            cl = new CommandList();
+            USBConnection.init();
+            USBConnection.open();
+            slider.Value = CommandList.DEFAULT_TIME;
         }
 
         private void slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            textBox.Text = Math.Round((slider.Value * 10), 3).ToString() + "ms";
+        {   
+            if(textBox!=null)
+               textBox.Text = Math.Round((slider.Value), 0).ToString();
         }
 
         private void textBox_Initialized(object sender, EventArgs e)
         {
-            textBox.Text = Math.Round((slider.Value * 10),3).ToString()+"ms";
+            textBox.Text = Math.Round((slider.Value),0).ToString();
         }
 
         private void comboBox_Initialized(object sender, EventArgs e)
         {
-            for(int i = 0; i < 45; i++)
+            List<int> comboList = new List<int>();
+            for(int i = 1; i <= 45; i++)
             {
                 comboList.Add(i);
             }
             comboBox.ItemsSource = comboList;
+            comboBox.SelectedIndex = 0;
         }
-
-       
 
         private void addButton_Click(object sender, RoutedEventArgs e)
         {
-            Command cmd;
+            if (time != (int.Parse(textBox.Text)))
+            {
+                cl.Add(new Command(Command.Cmdtype.TIME, int.Parse(textBox.Text) / 10));
+                time = int.Parse(textBox.Text);
+            }
             if (IRButton.IsChecked==true)
-            {
-                cmd = new Command(Command.cmdtype.INFRARED, (int)comboBox.SelectedItem);
-                cl.Add(cmd);
-                cls.Add(cmd.toString());
-            }
-
+                cl.Add(new Command(Command.Cmdtype.INFRARED, (int)comboBox.SelectedItem));
             if (VISButton.IsChecked == true)
-            {
-                cmd = new Command(Command.cmdtype.VISIBLE, (int)comboBox.SelectedItem+1);
-                cl.Add(cmd);
-                cls.Add(cmd.toString());
-            }
+                cl.Add(new Command(Command.Cmdtype.VISIBLE, (int)comboBox.SelectedItem+1));
             if (UVButton.IsChecked == true)
-            {
-                cmd = new Command(Command.cmdtype.ULTRAVIOLET, (int)comboBox.SelectedItem+1);
-                cl.Add(cmd);
-                cls.Add(cmd.toString());
-            }
+                cl.Add(new Command(Command.Cmdtype.ULTRAVIOLET, (int)comboBox.SelectedItem+1));
 
-            if (slider.Value>0)
-            {
-                cmd = new Command(Command.cmdtype.TIME, (int)slider.Value+1);
-                cl.Add(cmd);
-                cls.Add(cmd.toString());
-            }
-            cmdBox.ItemsSource = cls;
+            cmdBox.ItemsSource = cl.ToString();
             cmdBox.Items.Refresh();
         }
 
         private void resetButton_Click(object sender, RoutedEventArgs e)
         {
-            cls = new List<string>();
-            cl = new List<Command>();
-            cmdBox.ItemsSource = cls;
+            cl = new CommandList();
+            cmdBox.ItemsSource = cl.ToString();
             cmdBox.Items.Refresh();
         }
 
         private void sendButton_Click(object sender, RoutedEventArgs e)
         {
-            CommandList c=new CommandList(cl);
-            c.send();
+            cl.Send();
         }
         #region LightButtons
         private void VISButton_Unchecked(object sender, RoutedEventArgs e)
@@ -133,16 +120,30 @@ namespace WpfApp1
 
         private void button_Click(object sender, RoutedEventArgs e)
         {
-            Command cmd = new Command(Command.cmdtype.PHOTO);
+            Command cmd = new Command(Command.Cmdtype.PHOTO);
             cl.Add(cmd);
-            cls.Add(cmd.toString());
-            cmdBox.ItemsSource = cls;
+            cmdBox.ItemsSource = cl.ToString();
             cmdBox.Items.Refresh();
         }
 
-        private void cmdBox_Initialized(object sender, EventArgs e)
+        private void Window_Closed(object sender, EventArgs e)
         {
-            cmdBox.ItemsSource = cls;
+            USBConnection.close();
+        }
+
+        private void textBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            slider.Value = (int.Parse(textBox.Text) - int.Parse(textBox.Text) % 10);
+            textBox.Text = (int.Parse(textBox.Text) - int.Parse(textBox.Text) % 10).ToString();
+        }
+
+        private void textBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                slider.Value = (int.Parse(textBox.Text) - int.Parse(textBox.Text) % 10);
+                textBox.Text = (int.Parse(textBox.Text) - int.Parse(textBox.Text) % 10).ToString();
+            }
         }
     }
 }

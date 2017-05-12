@@ -1,0 +1,39 @@
+Nikon Type0014 Module SDK Revision 6
+  === [Mac OS] Notice about using Module SDK ===
+
+[Summary]
+
+    macOS 10.12 (Sierra) is supported from Module SDK.
+    Due to this change,  restrictions are added to Type0014 Module and PTP Driver.
+    Please notice the following when you use Module SDK on Mac OS.
+
+[Environment]
+
+  [Macintosh]
+    Mac OS X 10.9.5 (Mavericks)
+    Mac OS X 10.10.5 (Yosemite)
+    Mac OS X 10.11.6 (El Capitan)
+    macOS 10.12.1 (Sierra)
+
+[Glossary]
+
+  - New SDK ... Type0014 Module SDK Revision 6 (Sierra supported revision)  * This Module SDK
+  - Old SDK ... Type0014 Module SDK older than New SDK
+
+  * Please refer to ReadMe_Eng.txt for the details about other words.
+
+[Notice]
+
+  - New restrictions are added to Type0014 Module by New SDK.
+    Please refer the following document and notice.
+
+      - Usage of Type0014 Module(E).pdf
+        "About the usage environment of Module SDK for Macintosh"
+        "The restriction on Macintosh"
+
+    Also when you use Type0014 Module of New SDK from the application that you made for Old SDK,
+    please notice the restrictions above.
+
+  - Do not load mixed Type0014 Module of New SDK and Type0014 Module of Old SDK.
+    The SDK is incorrectly executed.
+

@@ -1,0 +1,39 @@
+Nikon Type0014 Module SDK Revision 6
+  === [Mac OS] Module SDK 使用時の注意 ===
+
+■概要
+
+    本Module SDK より macOS 10.12 (Sierra) に対応しました。
+    それに伴い、Type0014 Module と PTP ドライバに制限事項が追加されたため、
+    Mac OS で Module SDK をご使用の際は下記にご注意ください。
+
+■動作環境
+
+[Macintosh]
+    Mac OS X 10.9.5 (Mavericks)
+    Mac OS X 10.10.5 (Yosemite)
+    Mac OS X 10.11.6 (El Capitan)
+    macOS 10.12.1 (Sierra)
+
+■用語の説明
+
+  ・新SDK ... Type0014 Module SDK Revision 6 (Sierra対応版)  ※本Module SDK
+  ・旧SDK ... 新SDKより以前の Type0014 Module SDK
+
+  ※その他の用語についての詳細は、ReadMe_Jpn.txtをご参照ください。
+
+■注意事項
+
+    ・新SDK から、Type0014 Module に対し新しい制限事項が追加されました。
+      以下のドキュメントをご参照の上、ご注意ください。
+
+        - Usage of Type0014 Module(J).pdf
+          「Macintosh版Module SDKの利用環境について」
+          「Macintoshでの 使用時について」
+
+    　旧SDK用に作成したアプリケーションから、新SDK の Type0014 Module を使用する場合も、
+      上記の制限事項にご注意ください。
+
+    ・新/旧SDK の Type0014 Module を混在させてロードしないでください。
+      SDK が正常に動作しなくなります。
+

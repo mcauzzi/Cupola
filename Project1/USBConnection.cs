@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-static class USBConnection
+public static class USBConnection
 {
     private static SerialPort _serialPort;
 
