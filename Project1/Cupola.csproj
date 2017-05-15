@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Cupola</RootNamespace>
-    <AssemblyName>Project1</AssemblyName>
+    <AssemblyName>Cupola</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -57,27 +57,66 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="dependencies\Type0014.md3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandList.cs" />
-    <Compile Include="Cupola.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Command.cs" />
+    <Compile Include="LiveView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LiveView.Designer.cs">
+      <DependentUpon>LiveView.cs</DependentUpon>
+    </Compile>
     <Compile Include="NikonController.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="USBConnection.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="nikoncswrapper">
       <HintPath>..\nikoncswrapper.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml" />
+    <Reference Include="UIAutomationProvider" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="config\ciao.txt" />
     <Content Include="config\pippo.txt" />
     <Content Include="config\testVis.txt" />
+    <Content Include="dependencies\nikoncswrapper.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="dependencies\NkdPTP.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="config\Nuova cartella\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="LiveView.resx">
+      <DependentUpon>LiveView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

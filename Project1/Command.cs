@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO.Ports;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 public class Command
 {
@@ -53,9 +48,9 @@ public class Command
         } else {
             int value = GetValue(str) + 1;
             if (type == Cmdtype.TIME && (value < 0 || value > 999))
-                throw new ArgumentException("Wrong value of TIME", "value");
+                throw new ArgumentException("Wrong value of TIME", nameof(str));
             if ((type == Cmdtype.VISIBLE || type == Cmdtype.INFRARED || type == Cmdtype.ULTRAVIOLET) && (value < 1 || value > 50))
-                throw new ArgumentException("Wrong number of led", "value");
+                throw new ArgumentException("Wrong number of led", nameof(str));
 
             this.Type = type;
             Value = value;

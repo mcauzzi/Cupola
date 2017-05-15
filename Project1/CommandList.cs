@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 public class CommandList
 {
@@ -57,7 +55,7 @@ public class CommandList
         int i=0;
         foreach (Command c in list)
         {
-            camCon.WaitForSave();
+            camCon.WaitForReady();
             if (c.Type == Command.Cmdtype.PHOTO)
                 camCon.Capture();
             else
@@ -80,7 +78,7 @@ public class CommandList
 
             i++;
         }
-        camCon.WaitForSave();
+        camCon.WaitForReady();
         Console.WriteLine("Finito!");
         USBConnection.Close();
     }
