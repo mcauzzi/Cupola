@@ -16,23 +16,23 @@ public class Program {
     [STAThread]
     public static void Main() {
         USBConnection.Init();
-        NikonController camCon = new NikonController(false);
-        CommandList cl = new CommandList(camCon);
+        var camCon = new NikonController(true);
+        var cl = new CommandList(camCon);
         Application.EnableVisualStyles();
         camCon.WaitForConnection();
         camCon.SetParams();
-        Application.Run(new LiveView(camCon));
+        //Application.Run(new LiveView(camCon));
 
         
-        //cl.Add(new Command(Command.Cmdtype.TIME, 50));
+        cl.Add(new Command(Command.Cmdtype.TIME, 100));
 
-        //for (int i = 0; i < 5; i++)
-        //{
-        //    cl.Add(new Command(Command.Cmdtype.VISIBLE, i + 1));
-        //    cl.Add(new Command(Command.Cmdtype.PHOTO));
-        //}
+        for (int i = 0; i < 5; i++)
+        {
+            cl.Add(new Command(Command.Cmdtype.VISIBLE, i + 1));
+            cl.Add(new Command(Command.Cmdtype.PHOTO));
+        }
 
-        //cl.Send();
+        cl.Send();
 
         Console.ReadLine();
         Environment.Exit(0);

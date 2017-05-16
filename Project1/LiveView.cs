@@ -19,7 +19,6 @@ namespace Cupola
         public LiveView(NikonController con)
         {
             InitializeComponent();
-            pictureBox1.Image = Image.FromFile("lena.jpg");
 
             this.con = con;
   
@@ -30,13 +29,13 @@ namespace Cupola
             liveViewTimer.Start();
         }
 
-        void liveViewTimer_Tick(object sender, EventArgs e)
+        private void liveViewTimer_Tick(object sender, EventArgs e)
         {
             var image = con.getLiveView();
 
             if (image != null)
             {
-                MemoryStream stream = new MemoryStream(image.JpegBuffer);
+                var stream = new MemoryStream(image.JpegBuffer);
                 pictureBox1.Image = Image.FromStream(stream);
             }
         }

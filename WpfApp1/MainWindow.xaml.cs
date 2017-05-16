@@ -1,18 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Nikon;
 
 namespace WpfApp1
 {
@@ -23,13 +13,14 @@ namespace WpfApp1
     {
         private CommandList cl;
         private int time=-1;
+        private NikonController camCon = new NikonController(true);
 
         public MainWindow()
         {
             InitializeComponent();
-            cl = new CommandList();
+
+            cl = new CommandList(camCon);
             USBConnection.Init();
-            USBConnection.Open();
             slider.Value = CommandList.DEFAULT_TIME;
         }
 
@@ -75,7 +66,7 @@ namespace WpfApp1
 
         private void resetButton_Click(object sender, RoutedEventArgs e)
         {
-            cl = new CommandList();
+            cl = new CommandList(camCon);
             cmdBox.ItemsSource = cl.ToStringList();
             cmdBox.Items.Refresh();
         }
@@ -128,7 +119,7 @@ namespace WpfApp1
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            USBConnection.Close();
+            camCon.Close();
         }
 
         private void textBox_LostFocus(object sender, RoutedEventArgs e)

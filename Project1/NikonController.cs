@@ -128,10 +128,10 @@ public class NikonController
     public void SetParams()
     {
         //dev.SetUnsigned(eNkMAIDCapability.kNkMAIDCapability_ISOControlSensitivity, 100);
-        //NikonEnum shootingMode = device.GetEnum(eNkMAIDCapability.kNkMAIDCapability_ShootingMode);
-        //shootingMode.Index = (int)eNkMAIDShootingMode.kNkMAIDShootingMode_S;
-        //device.SetEnum(eNkMAIDCapability.kNkMAIDCapability_ShootingMode, shootingMode);
-        //device.SetUnsigned(eNkMAIDCapability.kNkMAIDCapability_ContinuousShootingNum, 5);
+        //NikonEnum shootingMode = dev.GetEnum(eNkMAIDCapability.kNkMAIDCapability_ShootingMode);
+        //shootingMode.Index = (int)eNkMAIDShootingMode.kNkMAIDShootingMode_CH;
+        //dev.SetEnum(eNkMAIDCapability.kNkMAIDCapability_ShootingMode, shootingMode);
+        //dev.SetUnsigned(eNkMAIDCapability.kNkMAIDCapability_ContinuousShootingNum, 5);
         //var shutterspeed = device.GetEnum(eNkMAIDCapability.kNkMAIDCapability_ShutterSpeed).ToString()));
         //Console.WriteLine(dev.GetUnsigned(eNkMAIDCapability.kNkMAIDCapability_ISOControlSensitivity));
         //dev.SetUnsigned(eNkMAIDCapability.kNkMAIDCapability_ISOControlSensitivity, (uint)eNkMAIDISOControlSensitivity3.kNkMAIDISOControlSensitivity3_ISO200);
@@ -140,8 +140,8 @@ public class NikonController
         //
         //Console.WriteLine(dev.GetEnum(eNkMAIDCapability.kNkMAIDCapability_ShootingSpeed).ToString());
 
-        SetIso("200");
-        SetShutterSpeed("1/100");
+        SetIso("100");
+        SetShutterSpeed("1/40");
         SetFormat("RAW");
 
         /*
@@ -233,6 +233,11 @@ public class NikonController
     {
         Console.WriteLine(data+isReady.ToString());
         isReady = true;
+    }
+
+    public void Close()
+    {
+        man.Shutdown();
     }
 
     private void OnProcessExit(object sender,EventArgs e)
