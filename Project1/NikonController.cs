@@ -22,7 +22,6 @@ public class NikonController
     public NikonController(bool saveToPc = false)
     {
         man.DeviceAdded += new DeviceAddedDelegate(DeviceAdded);
-        AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
         this.SaveToPc = saveToPc;
     }
 
@@ -128,8 +127,16 @@ public class NikonController
     public void SetParams()
     {
         //dev.SetUnsigned(eNkMAIDCapability.kNkMAIDCapability_ISOControlSensitivity, 100);
-        //NikonEnum shootingMode = dev.GetEnum(eNkMAIDCapability.kNkMAIDCapability_ShootingMode);
-        //shootingMode.Index = (int)eNkMAIDShootingMode.kNkMAIDShootingMode_CH;
+        dev.SetBoolean(eNkMAIDCapability.kNkMAIDCapability_LockCamera, true);
+
+        NikonEnum shootingMode = dev.GetEnum(eNkMAIDCapability.kNkMAIDCapability_ShootingMode);
+
+        for (int i = 0; i < shootingMode.Length; i++)
+        {
+            Console.WriteLine(i + ") " + shootingMode.GetEnumValueByIndex(i));
+        }
+
+        //shootingMode.Index = 3;
         //dev.SetEnum(eNkMAIDCapability.kNkMAIDCapability_ShootingMode, shootingMode);
         //dev.SetUnsigned(eNkMAIDCapability.kNkMAIDCapability_ContinuousShootingNum, 5);
         //var shutterspeed = device.GetEnum(eNkMAIDCapability.kNkMAIDCapability_ShutterSpeed).ToString()));
@@ -159,6 +166,8 @@ public class NikonController
         Console.WriteLine(dev.GetEnum(eNkMAIDCapability.kNkMAIDCapability_ShutterSpeed).ToString());
         Console.WriteLine(dev.GetEnum(eNkMAIDCapability.kNkMAIDCapability_CompressionLevel).ToString());
         Console.WriteLine(dev.GetEnum(eNkMAIDCapability.kNkMAIDCapability_WBMode).ToString());
+
+        //dev.SetBoolean(eNkMAIDCapability.kNkMAIDCapability_LockCamera, false);
     }
 
     public void WaitForConnection()
@@ -236,11 +245,6 @@ public class NikonController
     }
 
     public void Close()
-    {
-        man.Shutdown();
-    }
-
-    private void OnProcessExit(object sender,EventArgs e)
     {
         man.Shutdown();
     }

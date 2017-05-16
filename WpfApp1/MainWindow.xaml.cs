@@ -12,7 +12,7 @@ namespace WpfApp1
     public partial class MainWindow : Window
     {
         private CommandList cl;
-        private int time=-1;
+        private int time = -1;
         private NikonController camCon = new NikonController(true);
 
         public MainWindow()
@@ -26,7 +26,7 @@ namespace WpfApp1
 
         private void slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {   
-            if(textBox!=null)
+            if(textBox != null)
                textBox.Text = Math.Round((slider.Value), 0).ToString();
         }
 
@@ -135,6 +135,12 @@ namespace WpfApp1
                 slider.Value = (int.Parse(textBox.Text) - int.Parse(textBox.Text) % 10);
                 textBox.Text = (int.Parse(textBox.Text) - int.Parse(textBox.Text) % 10).ToString();
             }
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            new CameraWindow(this, camCon).Show();
+            this.IsEnabled = false;
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO.Ports;
+﻿using System.IO.Ports;
 
 public static class USBConnection
 {
@@ -7,7 +6,7 @@ public static class USBConnection
 
     public static void Init()
     {
-        serialPort = new SerialPort()
+        serialPort = new SerialPort
         {
             PortName = "COM3",
             BaudRate = 9600,
@@ -28,7 +27,7 @@ public static class USBConnection
         serialPort.Close();
     }
 
-    public static void Send(String str)
+    public static void Send(string str)
     {
         serialPort.Write(str);
     }

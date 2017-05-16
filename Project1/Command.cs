@@ -11,16 +11,13 @@ public class Command
         PHOTO
     }
 
-    public Cmdtype Type {  get; private set; }
-    public int Value {  get; private set; }
-
     //constructor for a PHOTO
     public Command(Cmdtype type)
     {
         if (type != Cmdtype.PHOTO)
             throw new ArgumentException("You can only instance PHOTO without parameters", "type");
 
-        this.Type = type;
+        Type = type;
     }
 
     //constructor for a led
@@ -28,34 +25,41 @@ public class Command
     {
         if (type == Cmdtype.PHOTO)
             throw new ArgumentException("You can't instance a PHOTO with parameters", "type");
-        if (type == Cmdtype.TIME && (value<0 || value>999))
+        if (type == Cmdtype.TIME && (value < 0 || value > 999))
             throw new ArgumentException("Wrong value of TIME", "value");
-        if ((type == Cmdtype.VISIBLE || type == Cmdtype.INFRARED || type == Cmdtype.ULTRAVIOLET) && (value < 1 || value>50))
+        if ((type == Cmdtype.VISIBLE || type == Cmdtype.INFRARED || type == Cmdtype.ULTRAVIOLET) &&
+            (value < 1 || value > 50))
             throw new ArgumentException("Wrong number of led", "value");
 
-        this.Type = type;
-        this.Value = value;
+        Type = type;
+        Value = value;
     }
 
     //constructor for a string, es. <t>, <v30>
     public Command(string str)
     {
-        Cmdtype type = GetType(str);
+        var type = GetType(str);
 
         if (type == Cmdtype.PHOTO)
         {
-            this.Type = type;
-        } else {
-            int value = GetValue(str) + 1;
+            Type = type;
+        }
+        else
+        {
+            var value = GetValue(str) + 1;
             if (type == Cmdtype.TIME && (value < 0 || value > 999))
                 throw new ArgumentException("Wrong value of TIME", nameof(str));
-            if ((type == Cmdtype.VISIBLE || type == Cmdtype.INFRARED || type == Cmdtype.ULTRAVIOLET) && (value < 1 || value > 50))
+            if ((type == Cmdtype.VISIBLE || type == Cmdtype.INFRARED || type == Cmdtype.ULTRAVIOLET) &&
+                (value < 1 || value > 50))
                 throw new ArgumentException("Wrong number of led", nameof(str));
 
-            this.Type = type;
+            Type = type;
             Value = value;
         }
     }
+
+    public Cmdtype Type { get; }
+    public int Value { get; }
 
     //returns the type of the string in input
     private Cmdtype GetType(string str)
@@ -74,7 +78,7 @@ public class Command
     //returns the value of the string in input
     private int GetValue(string str)
     {
-        return int.Parse(str.Substring(2, str.IndexOf('>')-2));
+        return int.Parse(str.Substring(2, str.IndexOf('>') - 2));
     }
 
     public void Send()
@@ -84,15 +88,16 @@ public class Command
 
     public override string ToString()
     {
-        switch (Type) {
-            case Cmdtype.TIME: 
+        switch (Type)
+        {
+            case Cmdtype.TIME:
                 return "<t" + Value + ">";
             case Cmdtype.VISIBLE:
-                return "<v" + (Value-1) + ">";
+                return "<v" + (Value - 1) + ">";
             case Cmdtype.INFRARED:
-                return "<i" + (Value-1) + ">";
+                return "<i" + (Value - 1) + ">";
             case Cmdtype.ULTRAVIOLET:
-                return "<u" + (Value-1) + ">";
+                return "<u" + (Value - 1) + ">";
             default:
                 return "<f>";
         }

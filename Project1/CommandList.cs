@@ -2,41 +2,43 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 public class CommandList
 {
-    private const int DELAY = 100;       //Minimum time to wait after a led command
+    private const int DELAY = 100; //Minimum time to wait after a led command
     public const int DEFAULT_TIME = 1000;
+    private readonly NikonController camCon;
 
-    private List<Command> list;
+    private readonly List<Command> list;
     private int time;
-    private NikonController camCon;
 
     public CommandList(NikonController control)
     {
         time = DEFAULT_TIME;
-        this.list = new List<Command>();
-        this.camCon = control;
+        list = new List<Command>();
+        camCon = control;
     }
 
     public CommandList(List<Command> list, NikonController control)
     {
         time = DEFAULT_TIME;
         this.list = new List<Command>(list);
-        this.camCon = control;
+        camCon = control;
     }
 
-    public void ReadFromFile(String fileName) {
-        string[] lines = System.IO.File.ReadAllLines(AppDomain.CurrentDomain.BaseDirectory + @"\config\" + fileName);
-        foreach (string str in lines)
+    public void ReadFromFile(string fileName)
+    {
+        var lines = File.ReadAllLines(AppDomain.CurrentDomain.BaseDirectory + @"\config\" + fileName);
+        foreach (var str in lines)
             Add(new Command(str));
     }
 
-    public void WriteToFile(String fileName)
+    public void WriteToFile(string fileName)
     {
-        using (StreamWriter file = new System.IO.StreamWriter(AppDomain.CurrentDomain.BaseDirectory + @"\config\" + fileName))
+        using (var file = new StreamWriter(AppDomain.CurrentDomain.BaseDirectory + @"\config\" + fileName))
         {
-            foreach (Command c in list)
+            foreach (var c in list)
                 file.WriteLine(c.ToString());
         }
     }
@@ -52,29 +54,26 @@ public class CommandList
         camCon.WaitForConnection();
         Console.WriteLine("Inizio a mandare!");
 
-        int i=0;
-        foreach (Command c in list)
+        var i = 0;
+        foreach (var c in list)
         {
             camCon.WaitForReady();
             if (c.Type == Command.Cmdtype.PHOTO)
                 camCon.Capture();
             else
                 USBConnection.Send(c.ToString());
-            
+
             Console.WriteLine(c.ToString());
 
             if (c.Type == Command.Cmdtype.TIME)
-                time = c.Value*10;
+                time = c.Value * 10;
 
-            if ((c.Type == Command.Cmdtype.VISIBLE) || (c.Type == Command.Cmdtype.INFRARED) || (c.Type == Command.Cmdtype.ULTRAVIOLET) || (c.Type == Command.Cmdtype.PHOTO))
-            {
-                if (i < list.Count-1 && list.ElementAt(i+1).Type != Command.Cmdtype.PHOTO)
-                {
-                    System.Threading.Thread.Sleep(time);
-                }
-            }
-            
-            System.Threading.Thread.Sleep(DELAY);
+            if (c.Type == Command.Cmdtype.VISIBLE || c.Type == Command.Cmdtype.INFRARED ||
+                c.Type == Command.Cmdtype.ULTRAVIOLET || c.Type == Command.Cmdtype.PHOTO)
+                if (i < list.Count - 1 && list.ElementAt(i + 1).Type != Command.Cmdtype.PHOTO)
+                    Thread.Sleep(time);
+
+            Thread.Sleep(DELAY);
 
             i++;
         }
@@ -83,10 +82,10 @@ public class CommandList
         USBConnection.Close();
     }
 
-    public List<String> ToStringList()
+    public List<string> ToStringList()
     {
-        List<String> str = new List<String>();
-        foreach(Command c in list)
+        var str = new List<string>();
+        foreach (var c in list)
             str.Add(c.ToString());
         return str;
     }
