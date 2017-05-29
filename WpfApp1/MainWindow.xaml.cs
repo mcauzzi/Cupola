@@ -1,146 +1,233 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
+using System.IO;
+using System.Threading;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
+using System.Windows.Forms;
+using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+using MessageBox = System.Windows.MessageBox;
+using Timer = System.Windows.Forms.Timer;
 
 namespace WpfApp1
 {
     /// <summary>
     /// Logica di interazione per MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
+        private NikonController camCon;
         private CommandList cl;
         private int time = -1;
-        private NikonController camCon = new NikonController(true);
+        private USBConnection usbCon;
+        private Thread sendThread;
+        private Timer liveViewTimer;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            cl = new CommandList(camCon);
-            USBConnection.Init();
-            slider.Value = CommandList.DEFAULT_TIME;
+            usbCon = new USBConnection("COM3");
+            camCon = new NikonController("Type0014.md3");
+            cl = new CommandList();
+            
+            LedTimeSlider.Value = CommandList.DEFAULT_TIME;
+            VisButton.IsChecked = true;
         }
 
-        private void slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void LedTimeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {   
-            if(textBox != null)
-               textBox.Text = Math.Round((slider.Value), 0).ToString();
+            if(LedTimeBox != null)
+               LedTimeBox.Text = Math.Round((LedTimeSlider.Value), 0).ToString();
         }
 
-        private void textBox_Initialized(object sender, EventArgs e)
+        private void InitCameraBoxes()
         {
-            textBox.Text = Math.Round((slider.Value),0).ToString();
+            if (camCon.IsConnected)
+            {
+                IsoBox.ItemsSource = camCon.IsoList;
+                ShutterBox.ItemsSource = camCon.ShutterList;
+                //ApertureBox.ItemsSource = camCon.ApertureList;
+                //WhiteBox.ItemsSource = camCon.ApertureList;
+                CompressionBox.ItemsSource = camCon.CompressionList;
+            }
         }
 
-        private void comboBox_Initialized(object sender, EventArgs e)
+        private void LedTimeBox_Initialized(object sender, EventArgs e)
+        {
+            LedTimeBox.Text = Math.Round((LedTimeSlider.Value),0).ToString();
+        }
+
+        private void LedNumberBox_Initialized(object sender, EventArgs e)
         {
             List<int> comboList = new List<int>();
             for(int i = 1; i <= 45; i++)
             {
                 comboList.Add(i);
             }
-            comboBox.ItemsSource = comboList;
-            comboBox.SelectedIndex = 0;
+            LedNumberBox.ItemsSource = comboList;
+            LedNumberBox.SelectedIndex = 0;
         }
 
-        private void addButton_Click(object sender, RoutedEventArgs e)
+        private void AddButton_Click(object sender, RoutedEventArgs e)
         {
-            if (time != (int.Parse(textBox.Text)))
+            if (time != (int.Parse(LedTimeBox.Text)))
             {
-                cl.Add(new Command(Command.Cmdtype.TIME, int.Parse(textBox.Text) / 10));
-                time = int.Parse(textBox.Text);
+                cl.Add(new Command(Command.Cmdtype.TIME, int.Parse(LedTimeBox.Text) / 10));
+                time = int.Parse(LedTimeBox.Text);
             }
-            if (IRButton.IsChecked==true)
-                cl.Add(new Command(Command.Cmdtype.INFRARED, (int)comboBox.SelectedItem));
-            if (VISButton.IsChecked == true)
-                cl.Add(new Command(Command.Cmdtype.VISIBLE, (int)comboBox.SelectedItem+1));
-            if (UVButton.IsChecked == true)
-                cl.Add(new Command(Command.Cmdtype.ULTRAVIOLET, (int)comboBox.SelectedItem+1));
+            if (IrButton.IsChecked==true)
+                cl.Add(new Command(Command.Cmdtype.INFRARED, (int)LedNumberBox.SelectedItem));
+            if (VisButton.IsChecked == true)
+                cl.Add(new Command(Command.Cmdtype.VISIBLE, (int)LedNumberBox.SelectedItem+1));
+            if (UvButton.IsChecked == true)
+                cl.Add(new Command(Command.Cmdtype.ULTRAVIOLET, (int)LedNumberBox.SelectedItem+1));
 
-            cmdBox.ItemsSource = cl.ToStringList();
-            cmdBox.Items.Refresh();
+            CmdBox.ItemsSource = cl.ToStringList();
+            CmdBox.Items.Refresh();
+            LedNumberBox.SelectedIndex = 0;
         }
 
-        private void resetButton_Click(object sender, RoutedEventArgs e)
+        private void ResetButton_Click(object sender, RoutedEventArgs e)
         {
-            cl = new CommandList(camCon);
-            cmdBox.ItemsSource = cl.ToStringList();
-            cmdBox.Items.Refresh();
+            time = -1;
+            cl = new CommandList();
+            CmdBox.ItemsSource = cl.ToStringList();
+            CmdBox.Items.Refresh();
         }
 
-        private void sendButton_Click(object sender, RoutedEventArgs e)
+        private void SendButton_Click(object sender, RoutedEventArgs e)
         {
-            cl.Send();
+            if (sendThread==null || !sendThread.IsAlive)
+            {
+                sendThread = new Thread(() => cl.Send(usbCon, camCon));
+                sendThread.Start();
+            }
         }
+
         #region LightButtons
-        private void VISButton_Unchecked(object sender, RoutedEventArgs e)
+        private void VisButton_Unchecked(object sender, RoutedEventArgs e)
         {
-            VISButton.IsChecked = false;
+            VisButton.IsChecked = false;
         }
 
-        private void UVButton_Unchecked(object sender, RoutedEventArgs e)
+        private void UvButton_Unchecked(object sender, RoutedEventArgs e)
         {
-            UVButton.IsChecked = false;
+            UvButton.IsChecked = false;
         }
 
-        private void IRButton_Unchecked(object sender, RoutedEventArgs e)
+        private void IrButton_Unchecked(object sender, RoutedEventArgs e)
         {
-            IRButton.IsChecked = false;
+            IrButton.IsChecked = false;
         }
 
-        private void UVButton_Checked(object sender, RoutedEventArgs e)
+        private void UvButton_Checked(object sender, RoutedEventArgs e)
         {
-            IRButton.IsChecked = false;
-            VISButton.IsChecked = false;
+            IrButton.IsChecked = false;
+            VisButton.IsChecked = false;
         }
 
-        private void VISButton_Checked(object sender, RoutedEventArgs e)
+        private void VisButton_Checked(object sender, RoutedEventArgs e)
         {
-            UVButton.IsChecked = false;
-            IRButton.IsChecked = false;
+            UvButton.IsChecked = false;
+            IrButton.IsChecked = false;
         }
-        private void IRButton_Checked(object sender, RoutedEventArgs e)
+        private void IrButton_Checked(object sender, RoutedEventArgs e)
         {
-            VISButton.IsChecked = false;
-            UVButton.IsChecked = false;
+            VisButton.IsChecked = false;
+            UvButton.IsChecked = false;
         }
         #endregion
 
-        private void button_Click(object sender, RoutedEventArgs e)
+        private void AddPhotoClick(object sender, RoutedEventArgs e)
         {
-            Command cmd = new Command(Command.Cmdtype.PHOTO);
-            cl.Add(cmd);
-            cmdBox.ItemsSource = cl.ToStringList();
-            cmdBox.Items.Refresh();
+            cl.Add(new Command(Command.Cmdtype.PHOTO));
+
+            CmdBox.ItemsSource = cl.ToStringList();
+            CmdBox.Items.Refresh();
+            CmdBox.SelectedIndex = 0;
         }
 
         private void Window_Closed(object sender, EventArgs e)
         {
+            liveViewTimer?.Stop();
+            camCon.SetLiveView(false);
             camCon.Close();
         }
 
-        private void textBox_LostFocus(object sender, RoutedEventArgs e)
+        private void LedTimeBox_LostFocus(object sender, RoutedEventArgs e)
         {
-            slider.Value = (int.Parse(textBox.Text) - int.Parse(textBox.Text) % 10);
-            textBox.Text = (int.Parse(textBox.Text) - int.Parse(textBox.Text) % 10).ToString();
+            LedTimeSlider.Value = (int.Parse(LedTimeBox.Text) - int.Parse(LedTimeBox.Text) % 10);
+            LedTimeBox.Text = (int.Parse(LedTimeBox.Text) - int.Parse(LedTimeBox.Text) % 10).ToString();
         }
 
-        private void textBox_KeyDown(object sender, KeyEventArgs e)
+        private void LedTimeBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
             {
-                slider.Value = (int.Parse(textBox.Text) - int.Parse(textBox.Text) % 10);
-                textBox.Text = (int.Parse(textBox.Text) - int.Parse(textBox.Text) % 10).ToString();
+                LedTimeSlider.Value = (int.Parse(LedTimeBox.Text) - int.Parse(LedTimeBox.Text) % 10);
+                LedTimeBox.Text = (int.Parse(LedTimeBox.Text) - int.Parse(LedTimeBox.Text) % 10).ToString();
             }
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        private void SetCameraButton_Click(object sender, RoutedEventArgs e)
         {
-            new CameraWindow(this, camCon).Show();
-            this.IsEnabled = false;
+            if (Process.GetProcessesByName("CameraControl").Length != 0)
+            {
+                MessageBox.Show("Chiudi Digicam! (crea un conflitto)");
+                return;
+            }
+            if (!camCon.IsConnected)
+            {
+                MessageBox.Show("Collega La camera!");
+                return;
+            }
+
+            InitCameraBoxes();
+            liveViewTimer = new Timer();
+            liveViewTimer.Tick += new EventHandler(liveViewTimer_Tick);
+            liveViewTimer.Interval = 1000 / 30;
+            camCon.SetLiveView(true);
+            liveViewTimer.Start();
+            CameraGroup.IsEnabled = true;
+        }
+
+        private void liveViewTimer_Tick(object sender, EventArgs e)
+        {
+            var image = camCon.getLiveView();
+
+            if (image != null)
+            {
+                var stream = new MemoryStream(image.JpegBuffer);
+                var img = new JpegBitmapDecoder(stream, BitmapCreateOptions.PreservePixelFormat,
+                    BitmapCacheOption.Default);
+                LiveViewImage.Source = img.Frames[0];
+                /*
+                LiveViewImage.Width = img.Frames[0].Width;
+                LiveViewImage.Height = img.Frames[0].Height;
+                LiveViewBorder.Height = img.Frames[0].Height;
+                LiveViewBorder.Width = img.Frames[0].Width;
+                LiveViewBorder.Margin = LiveViewImage.Margin;
+                */
+            }
+        }
+
+        private void DigiCam_Click(object sender, RoutedEventArgs e)
+        {
+            camCon.Close();
+            var p = new Process {StartInfo = {FileName = @"C:\Program Files (x86)\digiCamControl\CameraControl.exe" } };
+            p.EnableRaisingEvents = true;
+
+            p.Exited += (senderP, a) =>
+            {
+                camCon = new NikonController("Type0014.md3");
+               // cl = new CommandList(cl, camCon);
+                camCon.WaitForConnection();
+            };
+
+            p.Start();
         }
     }
 }

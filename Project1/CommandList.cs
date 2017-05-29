@@ -3,28 +3,26 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 public class CommandList
 {
     private const int DELAY = 100; //Minimum time to wait after a led command
     public const int DEFAULT_TIME = 1000;
-    private readonly NikonController camCon;
 
     private readonly List<Command> list;
     private int time;
 
-    public CommandList(NikonController control)
+    public CommandList()
     {
         time = DEFAULT_TIME;
         list = new List<Command>();
-        camCon = control;
     }
 
-    public CommandList(List<Command> list, NikonController control)
+    public CommandList(List<Command> list)
     {
         time = DEFAULT_TIME;
         this.list = new List<Command>(list);
-        camCon = control;
     }
 
     public void ReadFromFile(string fileName)
@@ -48,11 +46,11 @@ public class CommandList
         list.Add(c);
     }
 
-    public void Send()
+    public void Send(USBConnection usbCon, NikonController camCon)
     {
-        USBConnection.Open();
+        usbCon.Open();
         camCon.WaitForConnection();
-        Console.WriteLine("Inizio a mandare!");
+        Console.WriteLine("Inizio a mandare i comandi!");
 
         var i = 0;
         foreach (var c in list)
@@ -61,7 +59,7 @@ public class CommandList
             if (c.Type == Command.Cmdtype.PHOTO)
                 camCon.Capture();
             else
-                USBConnection.Send(c.ToString());
+                c.Send(usbCon);
 
             Console.WriteLine(c.ToString());
 
@@ -79,7 +77,7 @@ public class CommandList
         }
         camCon.WaitForReady();
         Console.WriteLine("Finito!");
-        USBConnection.Close();
+        usbCon.Close();
     }
 
     public List<string> ToStringList()

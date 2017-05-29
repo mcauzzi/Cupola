@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cupola", "Project1\Cupola.csproj", "{D9CE7DEE-0917-4675-9B6F-8311C64135D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfApp1", "WpfApp1\WpfApp1.csproj", "{643EA5AA-14AF-466A-BBD1-43EA71C27028}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CupolaUI", "WpfApp1\CupolaUI.csproj", "{643EA5AA-14AF-466A-BBD1-43EA71C27028}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AiutoDebugUI", "AiutoDebugUI\AiutoDebugUI.csproj", "{97E09395-760B-4E07-A876-5BABB2610324}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +31,14 @@ Global
 		{643EA5AA-14AF-466A-BBD1-43EA71C27028}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{643EA5AA-14AF-466A-BBD1-43EA71C27028}.Release|Any CPU.Build.0 = Release|Any CPU
 		{643EA5AA-14AF-466A-BBD1-43EA71C27028}.Release|x64.ActiveCfg = Release|Any CPU
+		{97E09395-760B-4E07-A876-5BABB2610324}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97E09395-760B-4E07-A876-5BABB2610324}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97E09395-760B-4E07-A876-5BABB2610324}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{97E09395-760B-4E07-A876-5BABB2610324}.Debug|x64.Build.0 = Debug|Any CPU
+		{97E09395-760B-4E07-A876-5BABB2610324}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97E09395-760B-4E07-A876-5BABB2610324}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97E09395-760B-4E07-A876-5BABB2610324}.Release|x64.ActiveCfg = Release|Any CPU
+		{97E09395-760B-4E07-A876-5BABB2610324}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

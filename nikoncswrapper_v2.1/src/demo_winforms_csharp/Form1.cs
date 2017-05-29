@@ -36,7 +36,7 @@ namespace demo_winforms_csharp
             liveViewTimer.Interval = 1000 / 30;
 
             // Initialize Nikon manager
-            manager = new NikonManager("Type0003.md3");
+            manager = new NikonManager("Type0014.md3");
             manager.DeviceAdded += new DeviceAddedDelegate(manager_DeviceAdded);
             manager.DeviceRemoved += new DeviceRemovedDelegate(manager_DeviceRemoved);
         }

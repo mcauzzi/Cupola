@@ -3,62 +3,118 @@ using System.Collections.Generic;
 
 using Nikon;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+
 
 public class NikonController
 {
-    private readonly NikonManager man = new NikonManager("Type0014.md3");
-    public readonly bool SaveToPc;
+    private  NikonManager man;
     private NikonDevice dev;
+    public bool SaveToPc { set; get; } = false;
 
-    private bool isConnected = false;
-    private bool isReady = false;
-    private bool isSaved = false;
+    public bool IsConnected { private set; get; }
+    public bool IsReady { private set; get; }
+    public bool IsSaved { private set; get; }
 
-    private List<string> IsoList = new List<string>();
-    private List<string> ShutterList = new List<string>();
-    private List<string> FormatList = new List<string>();
-
-    public NikonController(bool saveToPc = false)
+    private Dictionary<string, Nikon.eNkMAIDCapability> string2capability = new Dictionary<string, Nikon.eNkMAIDCapability>()
     {
+        { "ISO", eNkMAIDCapability.kNkMAIDCapability_Sensitivity},
+        { "ShutterSpeed", eNkMAIDCapability.kNkMAIDCapability_ShutterSpeed},
+        { "Compression", eNkMAIDCapability.kNkMAIDCapability_CompressionLevel }
+    };
+
+    public NikonController(string md3File)
+    {
+        IsConnected = false;
+        IsReady = false;
+        IsSaved = false;
+        man = new NikonManager(md3File);
         man.DeviceAdded += new DeviceAddedDelegate(DeviceAdded);
-        this.SaveToPc = saveToPc;
+    }
+
+    public int GetCapabilityIndex(string capability)
+    {
+        return IsConnected ? dev.GetEnum(string2capability[capability]).Index : throw new Exception("Camera isn't connected");
+    }
+
+    public void SetCapabilityIndex(string capability, int index)
+    {
+        if (IsConnected)
+        {
+            var isoList = dev.GetEnum(string2capability[capability]);
+            isoList.Index = index;
+            if (isoList.Index != -1)
+            {
+                dev.SetEnum(string2capability[capability], isoList);
+            }
+            else
+            {
+                throw new ArgumentException("Wrong " + capability, nameof(index));
+            }
+        }
+        else
+        {
+            throw new Exception("Camera isn't connected");
+        }
+    }
+
+    public List<string> getCapabilityStringList(string capability)
+    {
+        if (IsConnected)
+        {
+            List<string> res = new List<string>();
+            var list = dev.GetEnum(string2capability[capability]);
+            for (int i = 0; i < list.Length; i++)
+            {
+                res.Add((string) list.GetEnumValueByIndex(i));
+            }
+            return res;
+        }
+        else
+        {
+            throw new Exception("Camera isn't connected");
+        }
     }
 
     public void Capture()
     {
-        if (isConnected && isReady && isSaved)
+        if (IsConnected && IsReady && IsSaved)
         {
-            isReady = false;
+            IsReady = false;
             if (SaveToPc)
             {
-                isSaved = false;
+                IsSaved = false;
             }
             dev.Capture();
         }
     }
 
-    private void InitParamList()
+    #region getParamStringList
+    
+
+    public List<string> getShutterStringList()
     {
-        var isoList = dev.GetEnum(eNkMAIDCapability.kNkMAIDCapability_Sensitivity);
-        for (int i = 0; i < isoList.Length; i++)
+        List<string> res = new List<string>();
+        var shutterIndex = dev.GetEnum(eNkMAIDCapability.kNkMAIDCapability_ShutterSpeed);
+        for (int i = 0; i < shutterIndex.Length; i++)
         {
-            IsoList.Add((string)isoList.GetEnumValueByIndex(i));
+            res.Add((string)shutterIndex.GetEnumValueByIndex(i));
         }
-
-        var shutterList = dev.GetEnum(eNkMAIDCapability.kNkMAIDCapability_ShutterSpeed);
-        for (int i = 0; i < shutterList.Length; i++)
-        {
-            ShutterList.Add((string)shutterList.GetEnumValueByIndex(i));
-        }
-
-        var formatList = dev.GetEnum(eNkMAIDCapability.kNkMAIDCapability_CompressionLevel);
-        for (int i = 0; i < formatList.Length; i++)
-        {
-            FormatList.Add((string)formatList.GetEnumValueByIndex(i));
-        }
-
+        return res;
     }
+
+    public List<string> getCompressionStringList()
+    {
+        List<string> res = new List<string>();
+        var compressionList = dev.GetEnum(eNkMAIDCapability.kNkMAIDCapability_CompressionLevel);
+        for (int i = 0; i < compressionList.Length; i++)
+        {
+            res.Add((string)compressionList.GetEnumValueByIndex(i));
+        }
+        return res;
+    }
+    #endregion
 
     public void SetLiveView(bool liveView)
     {
@@ -92,7 +148,7 @@ public class NikonController
     public void SetFormat(string value)
     {
         var formatList = dev.GetEnum(eNkMAIDCapability.kNkMAIDCapability_CompressionLevel);
-        formatList.Index = FormatList.IndexOf(value);
+        formatList.Index = CompressionList.IndexOf(value);
         if (formatList.Index != -1)
             dev.SetEnum(eNkMAIDCapability.kNkMAIDCapability_CompressionLevel, formatList);
         else
@@ -126,7 +182,6 @@ public class NikonController
 
     public void SetParams()
     {
-        //dev.SetUnsigned(eNkMAIDCapability.kNkMAIDCapability_ISOControlSensitivity, 100);
         dev.SetBoolean(eNkMAIDCapability.kNkMAIDCapability_LockCamera, true);
 
         NikonEnum shootingMode = dev.GetEnum(eNkMAIDCapability.kNkMAIDCapability_ShootingMode);
@@ -140,12 +195,6 @@ public class NikonController
         //dev.SetEnum(eNkMAIDCapability.kNkMAIDCapability_ShootingMode, shootingMode);
         //dev.SetUnsigned(eNkMAIDCapability.kNkMAIDCapability_ContinuousShootingNum, 5);
         //var shutterspeed = device.GetEnum(eNkMAIDCapability.kNkMAIDCapability_ShutterSpeed).ToString()));
-        //Console.WriteLine(dev.GetUnsigned(eNkMAIDCapability.kNkMAIDCapability_ISOControlSensitivity));
-        //dev.SetUnsigned(eNkMAIDCapability.kNkMAIDCapability_ISOControlSensitivity, (uint)eNkMAIDISOControlSensitivity3.kNkMAIDISOControlSensitivity3_ISO200);
-        //Console.WriteLine(dev.GetFloat(eNkMAIDCapability.kNkMAIDCapability_FocalLength).ToString());
-        //Console.WriteLine(dev.GetEnum(eNkMAIDCapability.kNkMAIDCapability_Aperture).ToString());
-        //
-        //Console.WriteLine(dev.GetEnum(eNkMAIDCapability.kNkMAIDCapability_ShootingSpeed).ToString());
 
         SetIso("100");
         SetShutterSpeed("1/40");
@@ -172,18 +221,28 @@ public class NikonController
 
     public void WaitForConnection()
     {
-        while (!isConnected) { }
+        while (!IsConnected)
+        {
+            System.Threading.Thread.Yield();
+        }
     }
 
+   
     public void WaitForReady()
     {
-        while (!isSaved) { }
-        while (!isReady) { }
+        while (!IsSaved)
+        {
+            System.Threading.Thread.Yield();
+        }
+        while (!IsReady)
+        {
+            System.Threading.Thread.Yield();
+        }
     }
 
     private void SaveToFile(byte[] imageBuffer)
     {
-        using (var saveFile = new BinaryWriter(File.Open(DateTime.Now.ToString("yymmddHmmss") + ".nef", FileMode.Create)))
+        using (var saveFile = new BinaryWriter(File.Open(DateTime.Now.ToString("yyMMddhhmmss") + ".nef", FileMode.Create)))
         {
             foreach (byte b in imageBuffer)
             {
@@ -191,7 +250,7 @@ public class NikonController
             }
         }
         
-        isSaved = true;
+        IsSaved = true;
     }
 
     public NikonLiveViewImage getLiveView( )
@@ -223,12 +282,12 @@ public class NikonController
         }
         dev.ImageReady += new ImageReadyDelegate(DeviceImageReady);
         dev.CaptureComplete += new CaptureCompleteDelegate(OnCaptureComplete);
-
+        Console.WriteLine("Fotocamera collegata!");
         InitParamList();
 
-        isConnected = true;
-        isReady = true;
-        isSaved = true;
+        IsConnected = true;
+        IsReady = true;
+        IsSaved = true;
     }
 
     private void DeviceImageReady(NikonDevice sender, NikonImage image)
@@ -240,8 +299,7 @@ public class NikonController
 
     private void OnCaptureComplete(NikonDevice sender, int data)
     {
-        Console.WriteLine(data+isReady.ToString());
-        isReady = true;
+        IsReady = true;
     }
 
     public void Close()

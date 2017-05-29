@@ -15,7 +15,7 @@ public class Command
     public Command(Cmdtype type)
     {
         if (type != Cmdtype.PHOTO)
-            throw new ArgumentException("You can only instance PHOTO without parameters", "type");
+            throw new ArgumentException("You can only instance PHOTO without parameters", nameof(type));
 
         Type = type;
     }
@@ -24,12 +24,12 @@ public class Command
     public Command(Cmdtype type, int value)
     {
         if (type == Cmdtype.PHOTO)
-            throw new ArgumentException("You can't instance a PHOTO with parameters", "type");
+            throw new ArgumentException("You can't instance a PHOTO with parameters", nameof(type));
         if (type == Cmdtype.TIME && (value < 0 || value > 999))
-            throw new ArgumentException("Wrong value of TIME", "value");
+            throw new ArgumentException("Wrong value of TIME", nameof(value));
         if ((type == Cmdtype.VISIBLE || type == Cmdtype.INFRARED || type == Cmdtype.ULTRAVIOLET) &&
             (value < 1 || value > 50))
-            throw new ArgumentException("Wrong number of led", "value");
+            throw new ArgumentException("Wrong number of led", nameof(value));
 
         Type = type;
         Value = value;
@@ -71,7 +71,7 @@ public class Command
             case 'i': return Cmdtype.INFRARED;
             case 'u': return Cmdtype.ULTRAVIOLET;
             case 'p': return Cmdtype.PHOTO;
-            default: throw new ArgumentException("No type recognised in the string", "str");
+            default: throw new ArgumentException("No type recognised in the string", nameof(str));
         }
     }
 
@@ -81,9 +81,9 @@ public class Command
         return int.Parse(str.Substring(2, str.IndexOf('>') - 2));
     }
 
-    public void Send()
+    public void Send(USBConnection usbCon)
     {
-        USBConnection.Send(ToString());
+        usbCon.Send(ToString());
     }
 
     public override string ToString()
