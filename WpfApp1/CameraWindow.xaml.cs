@@ -1,28 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Forms;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using System.Windows.Forms;
+using Cupola;
 
 namespace WpfApp1
 {
     public partial class CameraWindow : Window
     {
         private readonly Window caller;
-        private NikonController con;
-        Timer liveViewTimer = new Timer();
+        private readonly NikonController con;
+        readonly Timer liveViewTimer = new Timer();
 
         public CameraWindow(Window caller, NikonController con)
         {
@@ -40,7 +29,7 @@ namespace WpfApp1
 
         private void liveViewTimer_Tick(object sender, EventArgs e)
         {
-            var image = con.getLiveView();
+            var image = con.GetLiveView();
 
             if (image != null)
             {

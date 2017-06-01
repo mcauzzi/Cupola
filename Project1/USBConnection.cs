@@ -1,14 +1,14 @@
 ﻿using System.IO.Ports;
 
-public static class USBConnection
+public class USBConnection
 {
-    private static SerialPort serialPort;
+    private SerialPort serialPort;
 
-    public static void Init()
+    public USBConnection(string portName)
     {
         serialPort = new SerialPort
         {
-            PortName = "COM3",
+            PortName = portName,
             BaudRate = 9600,
             DataBits = 8,
             Parity = Parity.None,
@@ -17,17 +17,17 @@ public static class USBConnection
         };
     }
 
-    public static void Open()
+    public void Open()
     {
         serialPort.Open();
     }
 
-    public static void Close()
+    public void Close()
     {
         serialPort.Close();
     }
 
-    public static void Send(string str)
+    public void Send(string str)
     {
         serialPort.Write(str);
     }

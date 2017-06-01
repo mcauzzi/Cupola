@@ -3,28 +3,30 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
+using Cupola;
 
 public class CommandList
 {
     private const int DELAY = 100; //Minimum time to wait after a led command
-    public const int DEFAULT_TIME = 1000;
-    private readonly NikonController camCon;
+    public const int DEFAULT_TIME = 100;
 
     private readonly List<Command> list;
     private int time;
 
-    public CommandList(NikonController control)
+    public static bool ShouldClose = false;
+
+    public CommandList()
     {
         time = DEFAULT_TIME;
         list = new List<Command>();
-        camCon = control;
     }
 
-    public CommandList(List<Command> list, NikonController control)
+    public CommandList(List<Command> list)
     {
         time = DEFAULT_TIME;
         this.list = new List<Command>(list);
-        camCon = control;
     }
 
     public void ReadFromFile(string fileName)
@@ -48,20 +50,27 @@ public class CommandList
         list.Add(c);
     }
 
-    public void Send()
+    public void Send(USBConnection usbCon, NikonController camCon)
     {
-        USBConnection.Open();
-        camCon.WaitForConnection();
-        Console.WriteLine("Inizio a mandare!");
+        usbCon?.Open();
+        camCon?.WaitForConnection();
+        Console.WriteLine("Inizio a mandare i comandi!");
 
         var i = 0;
         foreach (var c in list)
         {
-            camCon.WaitForReady();
+            if (ShouldClose)
+            {
+                ShouldClose = false;
+                usbCon?.Close();
+                camCon?.WaitForReady();
+                return;
+            }
+            camCon?.WaitForReady();
             if (c.Type == Command.Cmdtype.PHOTO)
-                camCon.Capture();
+                camCon?.Capture();
             else
-                USBConnection.Send(c.ToString());
+                c.Send(usbCon);
 
             Console.WriteLine(c.ToString());
 
@@ -77,9 +86,9 @@ public class CommandList
 
             i++;
         }
-        camCon.WaitForReady();
+        camCon?.WaitForReady();
         Console.WriteLine("Finito!");
-        USBConnection.Close();
+        usbCon?.Close();
     }
 
     public List<string> ToStringList()

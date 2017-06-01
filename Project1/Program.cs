@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Windows.Forms;
-using Cupola;
 
-//Led 21, 35, 42 IR non funzionano
+//Led 21, 35, 41 IR non funzionano
 
 //iso OK
 //exposure time OK
@@ -13,23 +11,30 @@ using Cupola;
 
 
 public class Program {
-    public static void Main() {
-        USBConnection.Init();
-        var camCon = new NikonController(true);
-        var cl = new CommandList(camCon);
-        
-        camCon.WaitForConnection();
-        camCon.SetParams();
+    public static void Main()
+    {
+        var usbCon = new USBConnection("COM3");
+        //var camCon = new NikonController("Type0014.md3");
+        //camCon.SaveToPc = true;
+        var cl = new CommandList();
 
+        //camCon.WaitForConnection();
+        /*
         cl.Add(new Command(Command.Cmdtype.TIME, 100));
-
-        for (int i = 0; i < 5; i++)
+        cl.Add(new Command(Command.Cmdtype.PHOTO));
+        for (int i = 0; i < 45; i++)
         {
-            cl.Add(new Command(Command.Cmdtype.VISIBLE, i + 1));
+            cl.Add(new Command(Command.Cmdtype.INFRARED, i + 1));
             cl.Add(new Command(Command.Cmdtype.PHOTO));
         }
+        */
 
-        cl.Send();
+        
+        cl.Add(new Command(Command.Cmdtype.TIME, 999));
+        cl.Add(new Command(Command.Cmdtype.INFRARED, 41));
+        cl.Send(usbCon, null);
+        
+        cl.Send(usbCon, null);
 
         Console.ReadLine();
         Environment.Exit(0);
