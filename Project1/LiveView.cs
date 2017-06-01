@@ -31,7 +31,7 @@ namespace Cupola
 
         private void liveViewTimer_Tick(object sender, EventArgs e)
         {
-            var image = con.getLiveView();
+            var image = con.GetLiveView();
 
             if (image != null)
             {

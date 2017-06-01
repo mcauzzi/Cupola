@@ -4,14 +4,18 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
+using Cupola;
 
 public class CommandList
 {
     private const int DELAY = 100; //Minimum time to wait after a led command
-    public const int DEFAULT_TIME = 1000;
+    public const int DEFAULT_TIME = 100;
 
     private readonly List<Command> list;
     private int time;
+
+    public static bool ShouldClose = false;
 
     public CommandList()
     {
@@ -48,16 +52,23 @@ public class CommandList
 
     public void Send(USBConnection usbCon, NikonController camCon)
     {
-        usbCon.Open();
-        camCon.WaitForConnection();
+        usbCon?.Open();
+        camCon?.WaitForConnection();
         Console.WriteLine("Inizio a mandare i comandi!");
 
         var i = 0;
         foreach (var c in list)
         {
-            camCon.WaitForReady();
+            if (ShouldClose)
+            {
+                ShouldClose = false;
+                usbCon?.Close();
+                camCon?.WaitForReady();
+                return;
+            }
+            camCon?.WaitForReady();
             if (c.Type == Command.Cmdtype.PHOTO)
-                camCon.Capture();
+                camCon?.Capture();
             else
                 c.Send(usbCon);
 
@@ -75,9 +86,9 @@ public class CommandList
 
             i++;
         }
-        camCon.WaitForReady();
+        camCon?.WaitForReady();
         Console.WriteLine("Finito!");
-        usbCon.Close();
+        usbCon?.Close();
     }
 
     public List<string> ToStringList()
