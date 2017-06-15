@@ -2,6 +2,9 @@
 
 public class Command
 {
+    public const int MAXTIME = 999;
+    public const int MAXLED = 45;
+
     public enum Cmdtype
     {
         TIME,
@@ -25,10 +28,10 @@ public class Command
     {
         if (type == Cmdtype.PHOTO)
             throw new ArgumentException("You can't instance a PHOTO with parameters", nameof(type));
-        if (type == Cmdtype.TIME && (value < 0 || value > 999))
+        if (type == Cmdtype.TIME && (value < 0 || value > MAXTIME))
             throw new ArgumentException("Wrong value of TIME", nameof(value));
         if ((type == Cmdtype.VISIBLE || type == Cmdtype.INFRARED || type == Cmdtype.ULTRAVIOLET) &&
-            (value < 1 || value > 50))
+            (value < 1 || value > MAXLED))
             throw new ArgumentException("Wrong number of led", nameof(value));
 
         Type = type;
@@ -47,10 +50,10 @@ public class Command
         else
         {
             var value = GetValue(str) + 1;
-            if (type == Cmdtype.TIME && (value < 0 || value > 999))
+            if (type == Cmdtype.TIME && (value < 0 || value > MAXTIME))
                 throw new ArgumentException("Wrong value of TIME", nameof(str));
             if ((type == Cmdtype.VISIBLE || type == Cmdtype.INFRARED || type == Cmdtype.ULTRAVIOLET) &&
-                (value < 1 || value > 50))
+                (value < 1 || value > MAXLED))
                 throw new ArgumentException("Wrong number of led", nameof(str));
 
             Type = type;

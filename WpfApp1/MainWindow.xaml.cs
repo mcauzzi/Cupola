@@ -1,16 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
 using Cupola;
 using Nikon;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MessageBox = System.Windows.MessageBox;
+using Point = System.Windows.Point;
 using Timer = System.Windows.Forms.Timer;
+
+//TODO: Add progressBar event in comlist
 
 namespace WpfApp1
 {
@@ -21,18 +28,16 @@ namespace WpfApp1
     {
         private readonly USBConnection usbCon;
         private readonly NikonController camCon;
-        private CommandList cl;
 
-        private int time = -1;
         private Thread sendThread;
         private Timer liveViewTimer;
         private BitmapSource placeholder;
+        private Point afCoord;
 
         public MainWindow()
         {
             usbCon = new USBConnection("COM3");
             camCon = new NikonController("Type0014.md3");
-            cl = new CommandList();
 
             InitializeComponent();
             
@@ -49,7 +54,7 @@ namespace WpfApp1
         {
             if (Process.GetProcessesByName("CameraControl").Length != 0)
             {
-                MessageBox.Show("Chiudi Digicam! (crea un conflitto)");
+                MessageBox.Show("Close Digicam!");
                 return;
             }
 
@@ -80,53 +85,16 @@ namespace WpfApp1
             LedTimeBox.Text = GetMsFromShutterSpeed().ToString();
         }
 
-        private void LedNumberBox_Initialized(object sender, EventArgs e)
-        {
-            var comboList = new List<int>();
-            for(int i = 1; i <= 45; i++)
-            {
-                comboList.Add(i);
-            }
-            LedNumberBox.ItemsSource = comboList;
-            LedNumberBox.SelectedIndex = 0;
-        }
-
-        private void AddButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (time != (int.Parse(LedTimeBox.Text)))
-            {
-                cl.Add(new Command(Command.Cmdtype.TIME, int.Parse(LedTimeBox.Text) / 10));
-                time = int.Parse(LedTimeBox.Text);
-            }
-            if (IrButton.IsChecked==true)
-                cl.Add(new Command(Command.Cmdtype.INFRARED, (int)LedNumberBox.SelectedItem));
-            if (VisButton.IsChecked == true)
-                cl.Add(new Command(Command.Cmdtype.VISIBLE, (int)LedNumberBox.SelectedItem));
-            if (UvButton.IsChecked == true)
-                cl.Add(new Command(Command.Cmdtype.ULTRAVIOLET, (int)LedNumberBox.SelectedItem));
-
-            CmdBox.ItemsSource = cl.ToStringList();
-            CmdBox.Items.Refresh();
-            LedNumberBox.SelectedIndex = 0;
-        }
-
-        private void ResetButton_Click(object sender, RoutedEventArgs e)
-        {
-            time = -1;
-            cl = new CommandList();
-            CmdBox.ItemsSource = cl.ToStringList();
-            CmdBox.Items.Refresh();
-        }
-
         private void SendButton_Click(object sender, RoutedEventArgs e)
         {
             if (sendThread == null || !sendThread.IsAlive)
             {
                 var clTemp = new CommandList();
+
+                clTemp.Add(new Command(Command.Cmdtype.TIME, GetMsFromShutterSpeed() / 10));
+                clTemp.Add(new Command(Command.Cmdtype.PHOTO));
                 if (AddLedBox.SelectedItem.Equals("All"))
                 {
-                    clTemp.Add(new Command(Command.Cmdtype.TIME, GetMsFromShutterSpeed()/10));
-                    clTemp.Add(new Command(Command.Cmdtype.PHOTO));
                     for (int i = 0; i < 45; i++)
                     {
                         clTemp.Add(new Command(Command.Cmdtype.VISIBLE, i + 1));
@@ -145,14 +113,7 @@ namespace WpfApp1
                 }
                 else if (AddLedBox.SelectedItem.Equals("All type"))
                 {
-                    Command.Cmdtype type;
-
-                    if (VisButton.IsChecked == true) { type = Command.Cmdtype.VISIBLE; }
-                    else if (IrButton.IsChecked == true) { type = Command.Cmdtype.INFRARED; }
-                    else { type = Command.Cmdtype.ULTRAVIOLET; }
-
-                    clTemp.Add(new Command(Command.Cmdtype.TIME, GetMsFromShutterSpeed()/10));
-                    clTemp.Add(new Command(Command.Cmdtype.PHOTO));
+                    var type = GetSelectedType();
                     for (int i = 0; i < 45; i++)
                     {
                         clTemp.Add(new Command(type, i + 1));
@@ -161,7 +122,13 @@ namespace WpfApp1
                 }
                 else
                 {
-                    clTemp = cl;
+                    try
+                    {
+                        clTemp = String2CommandList(LedNumberRangeBox.Text, GetSelectedType());
+                    } catch(ArgumentException)
+                    {
+                        MessageBox.Show("Wrong string!");
+                    }
                 }
 
                 sendThread = new Thread(() => clTemp.Send(usbCon, camCon));
@@ -169,6 +136,73 @@ namespace WpfApp1
             }
         }
 
+        private CommandList String2CommandList(string str, Command.Cmdtype type)
+        {
+            var cl = new CommandList();
+            str = str.Replace(" ", "");
+
+            var strList = str.Split(';');
+            foreach (var s in strList)
+            {
+                if (s.Contains("-"))
+                {
+                    var sRange = s.Split('-');
+                    int left, right;
+                    try
+                    {
+                        left = int.Parse(sRange[0]);
+                        right = int.Parse(sRange[1]);
+                    }
+                    catch (Exception)
+                    {
+                        throw new ArgumentException(str + "is not a valid string", nameof(str));
+                    }
+                    if (left < 1 || left > Command.MAXLED || right < 1 || right > Command.MAXLED || left > right)
+                    {
+                        throw new ArgumentException(str + "is not a valid string", nameof(str));
+                    }
+
+                    for (int i = left; i <= right; i++)
+                    {
+                        cl.Add(new Command(type, i));
+                        cl.Add(new Command(Command.Cmdtype.PHOTO));
+                    }
+                }
+                else
+                {
+                    int num;
+                    try
+                    {
+                        num = int.Parse(s);
+                    }
+                    catch (Exception)
+                    {
+                        throw new ArgumentException(str + "is not a valid string", nameof(str));
+                    }
+                    if (num < 1 || num > Command.MAXLED)
+                    {
+                        throw new ArgumentException(str + "is not a valid string", nameof(str));
+                    }
+
+                    cl.Add(new Command(type, num));
+                    cl.Add(new Command(Command.Cmdtype.PHOTO));
+                }
+            }
+
+            return cl;
+        }
+
+        private Command.Cmdtype GetSelectedType()
+        {
+            if (VisButton.IsChecked == true) return Command.Cmdtype.VISIBLE;
+            if (IrButton.IsChecked == true) return Command.Cmdtype.INFRARED;
+            return Command.Cmdtype.ULTRAVIOLET;
+        }
+
+        private int GetMs()
+        {
+            return AutoTimeCheck.IsChecked == true ? GetMsFromShutterSpeed() : int.Parse(LedTimeBox.Text);
+        }
         private int GetMsFromShutterSpeed()
         {
             int spIndex;
@@ -186,14 +220,14 @@ namespace WpfApp1
 
             try
             {
-                ms = int.Parse(spString.ToString()) * 1000 + 500;
+                ms = (int)(double.Parse(spString.ToString(), CultureInfo.InvariantCulture) * 1000 + 200);
             }
             catch (Exception)
             {
                 ms = 1000;
             }
 
-            return ms;
+            return Math.Max(0, Math.Min(Command.MAXTIME*10, ms));
         }
 
         #region LightButtons
@@ -215,32 +249,35 @@ namespace WpfApp1
         }
         #endregion
 
-        private void AddPhotoClick(object sender, RoutedEventArgs e)
-        {
-            cl.Add(new Command(Command.Cmdtype.PHOTO));
-
-            CmdBox.ItemsSource = cl.ToStringList();
-            CmdBox.Items.Refresh();
-            CmdBox.SelectedIndex = 0;
-        }
-
         private void LedTimeBox_LostFocus(object sender, RoutedEventArgs e)
         {
-            LedTimeBox.Text = (int.Parse(LedTimeBox.Text) - int.Parse(LedTimeBox.Text) % 10).ToString();
+            int time;
+            try
+            {
+                time = int.Parse(LedTimeBox.Text);
+            }
+            catch (OverflowException)
+            {
+                time = Command.MAXTIME * 10;
+            }
+            LedTimeBox.Text = Math.Min(Command.MAXTIME*10, (time - time % 10)).ToString();
+            LedTimeBox.Text = Math.Max(0, int.Parse(LedTimeBox.Text)).ToString();
         }
 
         private void LedTimeBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
             {
-                LedTimeBox.Text = (int.Parse(LedTimeBox.Text) - int.Parse(LedTimeBox.Text) % 10).ToString();
+                LedTimeBox_LostFocus(sender, e);
             }
         }
 
-        private void liveViewTimer_Tick(object sender, EventArgs e)
+        private void LiveViewTimer_Tick(object sender, EventArgs e)
         {
-            var image = camCon.GetLiveView();
+            if (!camCon.IsConnected)
+                return;
 
+            var image = camCon.GetLiveView();
             if (image != null)
             {
                 var stream = new MemoryStream(image.JpegBuffer);
@@ -258,6 +295,7 @@ namespace WpfApp1
         private void ShutterBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             camCon.SetCapabilityIndex(NikonController.Capability.ShutterSpeed, ShutterBox.SelectedIndex);
+            LedTimeBox.Text = GetMsFromShutterSpeed().ToString();
         }
 
         private void ApertureBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
@@ -279,15 +317,16 @@ namespace WpfApp1
         {
             if (ToggleLiveViewButton.Content.Equals("Enable Live View"))
             {
+                if (!camCon.IsConnected) return;
                 ToggleLiveViewButton.Content = "Disable Live View";
                 camCon.SetLiveView(true);
-                liveViewTimer.Tick += liveViewTimer_Tick ;
+                liveViewTimer.Tick += LiveViewTimer_Tick ;
             }
             else
             {
                 ToggleLiveViewButton.Content = "Enable Live View";
                 camCon.SetLiveView(false);
-                liveViewTimer.Tick -= liveViewTimer_Tick;
+                liveViewTimer.Tick -= LiveViewTimer_Tick;
                 LiveViewImage.Source = placeholder;
             }
         }
@@ -295,10 +334,8 @@ namespace WpfApp1
         private void PhotoTestButton_Click(object sender, RoutedEventArgs e)
         {
             var clTest = new CommandList();
-            clTest.Add(new Command(Command.Cmdtype.TIME, 400));
-            if (VisButton.IsChecked == true) { clTest.Add(new Command(Command.Cmdtype.VISIBLE, 45)); }
-            else if (IrButton.IsChecked == true) { clTest.Add(new Command(Command.Cmdtype.INFRARED, 45)); }
-            else { clTest.Add(new Command(Command.Cmdtype.ULTRAVIOLET, 45)); }
+            clTest.Add(new Command(Command.Cmdtype.TIME, Math.Min(GetMsFromShutterSpeed()/10, Command.MAXTIME)));
+            clTest.Add(new Command(GetSelectedType(), 45));
             clTest.Add(new Command(Command.Cmdtype.PHOTO));
             if (sendThread == null || !sendThread.IsAlive)
             {
@@ -381,6 +418,79 @@ namespace WpfApp1
             {
                 CommandList.ShouldClose = true;
             }
+        }
+
+        private void AutoTimeCheck_Checked(object sender, RoutedEventArgs e)
+        {
+            LedTimeBox.IsEnabled = false;
+            LedTimeBox.Text = GetMsFromShutterSpeed().ToString();
+        }
+
+        private void AutoTimeCheck_Initialized(object sender, EventArgs e)
+        {
+            AutoTimeCheck.IsChecked = true;
+        }
+
+        private void AutoTimeCheck_Unchecked(object sender, RoutedEventArgs e)
+        {
+            LedTimeBox.IsEnabled = true;
+        }
+
+        private void AutoFocusButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (ToggleLiveViewButton.Content.Equals("Enable Live View"))
+            {
+                MessageBox.Show("Enable the Live View!");
+                return;
+            }
+
+            camCon.SetContrastAfArea(afCoord);
+            camCon.ContrastAf();
+        }
+
+        private void LiveViewImage_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (ToggleLiveViewButton.Content.Equals("Enable Live View"))
+            {
+                MessageBox.Show("Enable the Live View!");
+                return;
+            }
+
+            afCoord = e.GetPosition(LiveViewImage);
+            const int radius = 30;
+            afCoord.X = Math.Min(LiveViewImage.Width - radius - 1, Math.Max(1, afCoord.X - radius / 2));
+            afCoord.Y = Math.Min(LiveViewImage.Height - radius - 1, Math.Max(1, afCoord.Y - radius / 2));
+
+            LiveViewCanvas.Children.Clear();
+            var ellipse = new Ellipse
+            {
+                Stroke = new SolidColorBrush(Colors.LawnGreen),
+                Width = radius,
+                Height = radius,
+                StrokeThickness = 2,
+                Margin = new Thickness(afCoord.X, afCoord.Y, 0, 0)
+            };
+            LiveViewCanvas.Children.Add(ellipse);
+            MessageBox.Show(afCoord.ToString());
+        }
+
+        private void SaveLocationBox_Initialized(object sender, EventArgs e)
+        {
+            SaveLocationBox.Text = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)+"\\DomeDriver";
+            SaveLocationBox.IsEnabled = false;
+            camCon.SaveLocation = SaveLocationBox.Text;
+        }
+
+        private void SaveLocationButton_Initialized(object sender, EventArgs e)
+        {
+        }
+
+        private void SaveLocationButton_Click(object sender, RoutedEventArgs e)
+        {
+            var saveFileDialog = new FolderBrowserDialog();
+            saveFileDialog.ShowDialog();
+            SaveLocationBox.Text = saveFileDialog.SelectedPath;
+            camCon.SaveLocation = saveFileDialog.SelectedPath;
         }
     }
 }

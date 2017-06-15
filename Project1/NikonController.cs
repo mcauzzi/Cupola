@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Windows;
 using Nikon;
 
 namespace Cupola
@@ -10,6 +11,7 @@ namespace Cupola
         private readonly NikonManager man;
         private NikonDevice dev;
         public bool SaveToPc { set; get; }
+        public string SaveLocation { get; set; }
 
         public bool IsConnected { private set; get; }
         public bool IsReady { private set; get; }
@@ -36,7 +38,8 @@ namespace Cupola
             ShutterSpeed,
             Aperture,
             WhiteBalance,
-            Compression
+            Compression,
+            FocusPreferredArea
         }
 
         private readonly Dictionary<Capability, eNkMAIDCapability> capability2Nikon = new Dictionary<Capability, eNkMAIDCapability>()
@@ -45,7 +48,8 @@ namespace Cupola
             { Capability.ShutterSpeed, eNkMAIDCapability.kNkMAIDCapability_ShutterSpeed },
             { Capability.Aperture, eNkMAIDCapability.kNkMAIDCapability_Aperture },
             { Capability.WhiteBalance, eNkMAIDCapability.kNkMAIDCapability_WBMode },
-            { Capability.Compression, eNkMAIDCapability.kNkMAIDCapability_CompressionLevel }
+            { Capability.Compression, eNkMAIDCapability.kNkMAIDCapability_CompressionLevel },
+            { Capability.FocusPreferredArea, eNkMAIDCapability.kNkMAIDCapability_FocusPreferredArea }
         };
 
         public NikonController(string md3File)
@@ -116,7 +120,8 @@ namespace Cupola
 
         public void SetLiveView(bool liveView)
         {
-            dev.LiveViewEnabled = liveView;
+            if(IsConnected)
+                dev.LiveViewEnabled = liveView;
         }
 
         public void WaitForConnection()
@@ -141,7 +146,8 @@ namespace Cupola
 
         private void SaveToFile(byte[] imageBuffer)
         {
-            using (var saveFile = new BinaryWriter(File.Open(DateTime.Now.ToString("yyMMddhhmmss") + ".nef", FileMode.Create)))
+            using (var saveFile = new BinaryWriter(File.Open(SaveLocation + "\\" + DateTime.Now.ToString("yyMMddhhmmss") + ".nef",
+                FileMode.Create)))
             {
                 foreach (byte b in imageBuffer)
                 {
@@ -154,17 +160,7 @@ namespace Cupola
 
         public NikonLiveViewImage GetLiveView( )
         {
-            NikonLiveViewImage image = null;
-
-            try
-            {
-                image = dev.GetLiveViewImage();
-            }
-            catch (NikonException)
-            {
-                Console.WriteLine("Errore LiveView");
-            }
-
+            var image = dev.GetLiveViewImage();
             return image;
         }
 
@@ -209,6 +205,23 @@ namespace Cupola
         {
             dev?.SetBoolean(eNkMAIDCapability.kNkMAIDCapability_LockCamera, false);
             man.Shutdown();
+        }
+
+        public void SetContrastAfArea(Point p)
+        {
+            var point = new NkMAIDPoint
+            {
+                x = (int)(p.X*(7360f/640)),
+                y = (int)(p.Y*(4912f/424))
+            };
+
+            dev.SetUnsigned(eNkMAIDCapability.kNkMAIDCapability_LiveViewAF, 2);
+            dev.SetPoint(eNkMAIDCapability.kNkMAIDCapability_ContrastAFArea, point);
+        }
+
+        public void ContrastAf()
+        {
+            dev.SetUnsigned(eNkMAIDCapability.kNkMAIDCapability_ContrastAF, (uint)eNkMAIDContrastAF.kNkMAIDContrastAF_Start);
         }
     }
 }

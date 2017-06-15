@@ -3,10 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WpfApp1"
-        xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="WpfApp1.MainWindow"
+        x:Class="WpfApp1.MainWindow"
         mc:Ignorable="d"
-        Title="CupolaDriver" Height="493.42" Width="1063.841" Closed="Window_Closed">
+        Title="CupolaDriver" Height="515.546" Width="1063.841" Closed="Window_Closed" ResizeMode="NoResize">
     <Grid x:Name="grid1" Margin="0,0,2,1">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
@@ -14,7 +13,7 @@
         <Grid.RowDefinitions>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <GroupBox x:Name="CameraGroup" Header="Camera" HorizontalAlignment="Left" Height="172" Margin="11,272,0,0" VerticalAlignment="Top" Width="366">
+        <GroupBox x:Name="CameraGroup" Header="Camera" HorizontalAlignment="Left" Height="190" Margin="11,254,0,0" VerticalAlignment="Top" Width="366">
             <Grid Margin="0,0,-2,-12" HorizontalAlignment="Right" Width="356">
                 <ComboBox x:Name="IsoBox" HorizontalAlignment="Left" Height="20" Margin="100,23,0,0" VerticalAlignment="Top" Width="70" SelectionChanged="IsoBox_SelectionChanged"/>
                 <TextBlock HorizontalAlignment="Left" Margin="9,24,0,0" TextWrapping="Wrap" Text="ISO:" VerticalAlignment="Top" Height="16" Width="29"/>
@@ -28,46 +27,52 @@
                 <ComboBox x:Name="CompressionBox" HorizontalAlignment="Left" Height="20" Margin="100,124,0,0" VerticalAlignment="Top" Width="70" SelectionChanged="CompressionBox_SelectionChanged"/>
                 <Button x:Name="ToggleLiveViewButton" Content="Enable Live View" HorizontalAlignment="Left" Height="20" Margin="227,23,0,0" VerticalAlignment="Top" Width="110" Click="ToggleLiveViewButton_Click"/>
                 <Button x:Name="PhotoTestButton" Content="Photo Test" HorizontalAlignment="Left" Height="20" Margin="227,124,0,0" VerticalAlignment="Top" Width="110" Click="PhotoTestButton_Click"/>
-                <Button x:Name="Auto_Focus" Content="Auto Focus" HorizontalAlignment="Left" Height="20" Margin="227,99,0,0" VerticalAlignment="Top" Width="110"/>
+                <Button x:Name="AutoFocusButton" Content="Auto Focus" HorizontalAlignment="Left" Height="20" Margin="227,99,0,0" VerticalAlignment="Top" Width="110" Click="AutoFocusButton_Click"/>
             </Grid>
         </GroupBox>
-        <GroupBox x:Name="CupolaGroup" Header="Cupola" HorizontalAlignment="Left" Height="257" Margin="10,10,0,0" VerticalAlignment="Top" Width="367">
+        <GroupBox x:Name="CupolaGroup" Header="Cupola" HorizontalAlignment="Left" Height="237" Margin="10,10,0,0" VerticalAlignment="Top" Width="367">
             <Grid Margin="0,0,-2,-12">
-                <Grid x:Name="LightTypeGrid" Margin="12,44,86,185" Initialized="LightTypeGrid_Initialized" Height="20">
+                <Grid x:Name="LightTypeGrid" Margin="12,78,86,0" Initialized="LightTypeGrid_Initialized" Height="20" VerticalAlignment="Top">
                     <RadioButton x:Name="UvButton" Content="UV" HorizontalAlignment="Left" Margin="224,3,0,0" VerticalAlignment="Top" Checked="UvButton_Checked" Height="15" Width="35"/>
                     <RadioButton x:Name="IrButton" Content="IR" Margin="167,3,0,0" VerticalAlignment="Top" Checked="IrButton_Checked" HorizontalAlignment="Left" Height="15" Width="29" RenderTransformOrigin="0.894,0.458"/>
-                    <RadioButton x:Name="VisButton" Content="Visibile" HorizontalAlignment="Left" Margin="89,3,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.54,-2.382" Checked="VisButton_Checked" Width="65" Height="15"/>
+                    <RadioButton x:Name="VisButton" Content="Visibile" HorizontalAlignment="Left" Margin="89,3,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.54,-2.382" Checked="VisButton_Checked" Width="65" Height="15" IsChecked="True"/>
                     <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Light Type:" VerticalAlignment="Top" RenderTransformOrigin="-0.551,-1.076" Height="16" Width="75"/>
                 </Grid>
-                <Button x:Name="SendButton" Content="Send" HorizontalAlignment="Left" Margin="274,209,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.593,-0.664" Width="70" Click="SendButton_Click" Height="20"/>
-                <Grid x:Name="CustomGrid" Margin="10,110,13,53" Initialized="CustomGrid_Initialized">
-                    <Grid x:Name="LedDurationGrid" Margin="0,30,0,0" Height="26" VerticalAlignment="Top">
+                <Button x:Name="SendButton" Content="Send" HorizontalAlignment="Left" Margin="274,185,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.593,-0.664" Width="70" Click="SendButton_Click" Height="20"/>
+                <Grid x:Name="CustomGrid" Margin="12,122,11,0" Initialized="CustomGrid_Initialized" Height="57" VerticalAlignment="Top">
+                    <Grid x:Name="LedDurationGrid" Margin="0,33,0,-2" Height="26" VerticalAlignment="Top">
                         <TextBlock HorizontalAlignment="Left" Margin="0,2,0,0" TextWrapping="Wrap" Text="LED Duration:" VerticalAlignment="Top" Height="16" Width="131"/>
-                        <TextBox x:Name="LedTimeBox" HorizontalAlignment="Left" Height="23" Margin="92,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="49" Initialized="LedTimeBox_Initialized" RenderTransformOrigin="-2.743,1.913" LostFocus="LedTimeBox_LostFocus" KeyDown="LedTimeBox_KeyDown"/>
-                        <TextBlock HorizontalAlignment="Left" Margin="146,4,0,0" TextWrapping="Wrap" Text="ms" VerticalAlignment="Top" Height="16" Width="19" RenderTransformOrigin="-3.522,-0.375"/>
+                        <TextBox x:Name="LedTimeBox" HorizontalAlignment="Left" Height="22" Margin="92,1,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="49" Initialized="LedTimeBox_Initialized" RenderTransformOrigin="-2.743,1.913" LostFocus="LedTimeBox_LostFocus" KeyDown="LedTimeBox_KeyDown"/>
+                        <TextBlock HorizontalAlignment="Left" Margin="146,2,0,0" TextWrapping="Wrap" Text="ms" VerticalAlignment="Top" Height="16" Width="19" RenderTransformOrigin="-3.522,-0.375"/>
+                        <CheckBox x:Name="AutoTimeCheck" Content="Auto" HorizontalAlignment="Left" Margin="183,4,0,0" VerticalAlignment="Top" Checked="AutoTimeCheck_Checked" Initialized="AutoTimeCheck_Initialized" Unchecked="AutoTimeCheck_Unchecked"/>
                     </Grid>
-                    <Grid x:Name="LedNumberGrid" Margin="1,0,178,0" Height="22" VerticalAlignment="Top">
-                        <TextBlock TextWrapping="Wrap" Text="LED Number:" VerticalAlignment="Top" Height="16" Margin="0,1,69,0"/>
-                        <ComboBox x:Name="LedNumberBox" HorizontalAlignment="Left" Margin="90,0,0,0" VerticalAlignment="Top" Width="65" Initialized="LedNumberBox_Initialized" Height="20"/>
-                    </Grid>
-                    <Grid x:Name="CommandListGrid" Margin="0,61,0,0" Height="22" VerticalAlignment="Top">
-                        <Button x:Name="AddLedButton" Content="Add LED" HorizontalAlignment="Left" Margin="158,0,0,0" VerticalAlignment="Top" Click="AddButton_Click" Width="53" Height="20"/>
-                        <Button x:Name="AddPhotoButton" Content="Add Photo" HorizontalAlignment="Left" Margin="218,0,0,0" VerticalAlignment="Top" Width="65" RenderTransformOrigin="-0.74,-0.58" Click="AddPhotoClick" Height="20"/>
-                        <Button x:Name="ResetButton" Content="Reset" HorizontalAlignment="Left" Margin="290,0,0,0" VerticalAlignment="Top" Click="ResetButton_Click" Width="44" Height="20"/>
-                        <ComboBox x:Name="CmdBox" HorizontalAlignment="Left" Margin="91,0,0,0" VerticalAlignment="Top" Width="56" Height="20" SelectedIndex="1"/>
-                        <TextBlock HorizontalAlignment="Left" Margin="0,1,0,0" TextWrapping="Wrap" Text="Command List:" VerticalAlignment="Top" Height="16" Width="85"/>
+                    <Grid x:Name="LedNumberGrid" Margin="1,-24,41,0" Height="52" VerticalAlignment="Top">
+                        <TextBlock TextWrapping="Wrap" Text="LED N° Range:" VerticalAlignment="Top" Height="16" Margin="0,29,0,0" HorizontalAlignment="Left" Width="86"/>
+                        <TextBlock TextWrapping="Wrap" Text="Insert a number, a range or both (1-3;5)" VerticalAlignment="Top" Height="19" Margin="91,5,-17,0" HorizontalAlignment="Left" Width="218" Foreground="Red" FontSize="11"/>
+                        <TextBox x:Name="LedNumberRangeBox" HorizontalAlignment="Left" Height="22" Margin="91,26,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="116" Initialized="LedTimeBox_Initialized" RenderTransformOrigin="-2.743,1.913" LostFocus="LedTimeBox_LostFocus" KeyDown="LedTimeBox_KeyDown"/>
                     </Grid>
                 </Grid>
-                <Grid x:Name="InsertModeGrid" Margin="12,11,162,208" Height="22">
+                <Grid x:Name="InsertModeGrid" Margin="12,12,162,0" Height="22" VerticalAlignment="Top">
                     <TextBlock TextWrapping="Wrap" Text="Insert mode:" VerticalAlignment="Top" Height="16" Margin="0,0,68,0"/>
                     <ComboBox x:Name="AddLedBox" HorizontalAlignment="Left" Margin="89,0,-30,0" VerticalAlignment="Top" Width="95" Height="20" Initialized="AddLedBox_Initialized" SelectionChanged="AddLedBox_SelectionChanged"/>
                 </Grid>
-                <CheckBox x:Name="SaveCheck" Content="Save to PC" HorizontalAlignment="Left" Margin="268,14,0,0" VerticalAlignment="Top" Initialized="SaveCheck_Initialized" Checked="SaveCheck_Checked"/>
-                <Button x:Name="StopButton" Content="Stop" HorizontalAlignment="Left" Margin="12,209,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.593,-0.664" Width="70" Height="20" Click="StopButton_Click"/>
+                <CheckBox x:Name="SaveCheck" Content="Save to PC" HorizontalAlignment="Left" Margin="268,12,0,0" VerticalAlignment="Top" Initialized="SaveCheck_Initialized" Checked="SaveCheck_Checked"/>
+                <Button x:Name="StopButton" Content="Stop" HorizontalAlignment="Left" Margin="12,185,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.593,-0.664" Width="70" Height="20" Click="StopButton_Click"/>
+                <TextBox x:Name="SaveLocationBox" HorizontalAlignment="Left" Height="22" Margin="12,46,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="296" Initialized="SaveLocationBox_Initialized"/>
+                <Button x:Name="SaveLocationButton" HorizontalAlignment="Left" VerticalAlignment="Top" Width="31" Margin="313,46,0,0" Height="22" Initialized="SaveLocationButton_Initialized" Click="SaveLocationButton_Click">
+                    <StackPanel Width="26">
+                        <Image Source="normal_folder.png" Height="20" Width="21" />
+                        <TextBlock Text="Choose save directory" />
+                    </StackPanel>
+                </Button>
             </Grid>
         </GroupBox>
-        <Border x:Name="LiveViewBorder" BorderBrush="Black" BorderThickness="2" Margin="396,20,0,0" IsHitTestVisible="False" Height="424" VerticalAlignment="Top" HorizontalAlignment="Left" Width="640">
-            <Image x:Name="LiveViewImage" IsManipulationEnabled="True" Width="640" HorizontalAlignment="Left" MinWidth="640" MinHeight="424" MaxHeight="424" MaxWidth="640" Margin="-1" Initialized="LiveViewImage_Initialized"/>
-        </Border>
+        <Grid x:Name="LiveViewGrid" HorizontalAlignment="Left" Height="424" Margin="396,20,0,0" VerticalAlignment="Top" Width="640">
+            <Image x:Name="LiveViewImage" IsManipulationEnabled="True" Width="640" HorizontalAlignment="Left" MinWidth="640" MinHeight="424" MaxHeight="424" MaxWidth="640" Initialized="LiveViewImage_Initialized" PreviewMouseDown="LiveViewImage_PreviewMouseDown" Height="424"/>
+            <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="424" VerticalAlignment="Top" Width="640"/>
+            <Canvas x:Name="LiveViewCanvas" >
+                <ProgressBar x:Name="SendProgress" Height="20" Width="1056" Canvas.Top="436" Canvas.Left="-395"/>
+            </Canvas>
+        </Grid>
     </Grid>
 </Window>

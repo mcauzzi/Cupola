@@ -2,7 +2,8 @@
 
 public class USBConnection
 {
-    private SerialPort serialPort;
+    private readonly SerialPort serialPort;
+    public bool IsConnected = false;
 
     public USBConnection(string portName)
     {
@@ -15,6 +16,8 @@ public class USBConnection
             StopBits = StopBits.One,
             Handshake = Handshake.RequestToSend
         };
+
+        IsConnected = true;
     }
 
     public void Open()

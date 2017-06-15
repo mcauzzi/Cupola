@@ -29,6 +29,7 @@ Global
 		{643EA5AA-14AF-466A-BBD1-43EA71C27028}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{643EA5AA-14AF-466A-BBD1-43EA71C27028}.Release|Any CPU.Build.0 = Release|Any CPU
 		{643EA5AA-14AF-466A-BBD1-43EA71C27028}.Release|x64.ActiveCfg = Release|Any CPU
+		{643EA5AA-14AF-466A-BBD1-43EA71C27028}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

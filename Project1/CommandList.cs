@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
 using Cupola;
 
 public class CommandList
@@ -13,19 +11,17 @@ public class CommandList
     public const int DEFAULT_TIME = 100;
 
     private readonly List<Command> list;
-    private int time;
+    private int time = DEFAULT_TIME;
 
     public static bool ShouldClose = false;
 
     public CommandList()
     {
-        time = DEFAULT_TIME;
         list = new List<Command>();
     }
 
     public CommandList(List<Command> list)
     {
-        time = DEFAULT_TIME;
         this.list = new List<Command>(list);
     }
 
@@ -52,8 +48,11 @@ public class CommandList
 
     public void Send(USBConnection usbCon, NikonController camCon)
     {
-        usbCon?.Open();
-        camCon?.WaitForConnection();
+        bool camConStatus = (camCon != null && camCon.IsConnected);
+        bool usbConStatus = (usbCon != null && usbCon.IsConnected);
+
+        if (usbConStatus) usbCon.Open();
+        if (camConStatus) camCon.WaitForConnection();
         Console.WriteLine("Inizio a mandare i comandi!");
 
         var i = 0;
@@ -62,14 +61,14 @@ public class CommandList
             if (ShouldClose)
             {
                 ShouldClose = false;
-                usbCon?.Close();
-                camCon?.WaitForReady();
+                if (usbConStatus) usbCon.Close();
+                if (camConStatus) camCon.WaitForReady();
                 return;
             }
-            camCon?.WaitForReady();
-            if (c.Type == Command.Cmdtype.PHOTO)
-                camCon?.Capture();
-            else
+            if (camConStatus) camCon.WaitForReady();
+            if (c.Type == Command.Cmdtype.PHOTO && camConStatus)
+                camCon.Capture();
+            else if(usbConStatus)
                 c.Send(usbCon);
 
             Console.WriteLine(c.ToString());
@@ -83,12 +82,12 @@ public class CommandList
                     Thread.Sleep(time);
 
             Thread.Sleep(DELAY);
-
+            
             i++;
         }
-        camCon?.WaitForReady();
+        if (camConStatus) camCon.WaitForReady();
         Console.WriteLine("Finito!");
-        usbCon?.Close();
+        if (usbConStatus) usbCon.Close();
     }
 
     public List<string> ToStringList()
